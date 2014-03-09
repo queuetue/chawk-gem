@@ -1,6 +1,21 @@
 require "chawk/version"
 
 module Chawk
+	class Point
+		attr_reader :pointer, :value, :timestamp, :source
+		def initialize(pointer, value,options={})
+			@pointer = pointer
+			@value = value
+			@timestamp = Time.now()
+			if options[:source]
+				@source = options[:source]
+			end
+		end
+
+		def inspect  
+			"#{@value}#Point"  
+		end  
+	end
 	class Pointer
 	  attr_accessor :path
 	  def initialize(path)
@@ -21,7 +36,7 @@ module Chawk
 
 	    @path = path
 	    #puts "PATH: #{path}"
-	    @history = (1..25).collect{|x|rand(100)}
+	    @history = []#(1..25).collect{|x|rand(100)}
 	  end
 
 
@@ -29,12 +44,23 @@ module Chawk
 	    @path.join("/")
 	  end
 
+	  def +(other = 1)
+	  	raise ArgumentError unless other.integer?
+	  	self << self.last.value + other
+	  end  
+
+	  def -(other = 1)
+	  	raise ArgumentError unless other.integer?
+	  	self << self.last.value - other
+	  end  
+
 	  def <<(args)
 	  	if args.is_a?(Array)
 			#puts "ARGS: #{args}"
 	  		args.each do |arg|
 	  			if arg.is_a?(Integer)
-	  				@history << arg
+	  				p = Point.new(self,arg)
+	  				@history << p
 	  			else
 	  				#puts "ARGS/ARG ERROR: #{arg}"
 	  				raise ArgumentError
@@ -42,12 +68,14 @@ module Chawk
 	  		end
 	  	else
 			if args.is_a?(Integer)
-	  			@history << args
+				p = Point.new(self,args)
+	  			@history << p
 			else
 	  			#puts "ARG ERROR: #{arg}"
   				raise ArgumentError
   			end
 	  	end
+	  	self.last
 	  end
 
 	  def last
@@ -63,11 +91,11 @@ module Chawk
 	  end
 
 	  def max
-	  	@history.max
+	  	@history.max_by{|a|a.value}
 	  end
 
 	  def min
-	  	@history.min
+	  	@history.min_by{|a|a.value}
 	  end
 
 	end
