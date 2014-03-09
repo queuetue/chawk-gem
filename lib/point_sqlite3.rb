@@ -1,13 +1,10 @@
 module Chawk
 	class SqlitePoint
-		attr_reader :pointer, :value, :timestamp, :source
-		def initialize(pointer, value,options={})
+		attr_reader :pointer, :value, :timestamp
+		def initialize(pointer, value,timestamp)
 			@pointer = pointer
 			@value = value
-			@timestamp = Time.now()
-			if options[:source]
-				@source = options[:source]
-			end
+			@timestamp = timestamp
 		end
 
 		def inspect  

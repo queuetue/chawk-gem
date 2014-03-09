@@ -3,7 +3,7 @@ require "point_sqlite3"
 module Chawk
 	class SqliteChawkboard
 		DB_PROTOCOL_VERSION = "0.0.1"
-		attr_reader :db
+		attr_reader :db, :root_node
 		def initialize(filename,options={})
 			@db = SQLite3::Database.new(filename)
 			ver = get_db_version
@@ -18,6 +18,13 @@ module Chawk
 					end
 				end
 			end
+			@root_node = get_root_node_id
+		end
+
+		def get_root_node_id
+			sql = %q{SELECT id FROM nodes WHERE name='ROOT' and parent_id IS NULL;}
+			rows = db.execute(sql)
+			return rows[0][0];
 		end
 
 		def get_pointer(path)
@@ -42,6 +49,10 @@ module Chawk
 		def create_db_version
 			sql = "create table db_version (version varchar2(100)); insert into db_version values('#{DB_PROTOCOL_VERSION}');"
 			db.execute_batch(sql)
+			sql = "create table nodes (id INTEGER PRIMARY KEY, name TEXT, parent_id INTEGER); insert into nodes values (NULL, 'ROOT', NULL);"
+			db.execute_batch(sql)
+			sql = "create table value (id INTEGER PRIMARY KEY, value INTEGER, node_id INTEGER, recorded_at DATETIME);"
+			db.execute_batch(sql)
 		end
 
 		def usable_db_version?
@@ -49,6 +60,7 @@ module Chawk
 			return(rows[0][0] == DB_PROTOCOL_VERSION)
 		end
 	end
+
 	class SqlitePointer 
 	  attr_accessor :path
 	  def initialize(board,path)
@@ -63,14 +75,35 @@ module Chawk
 			self.delete
 		end
 
-		unless path.select{|x|x.include?('/')}.empty?
+	unless path.select{|x|x.include?('/')}.empty?
 			raise ArgumentError
 			self.delete
 		end
 
 	    @path = path
-	    #puts "PATH: #{path}"
-	    @history = []#(1..25).collect{|x|rand(100)}
+	    @node_id = find_or_make_db_path(path, @board.root_node)
+	  end
+
+	  def find_or_make_db_path(args,current_id)
+
+	  	#TODO NEEDS SANITIZATION
+
+	  	ary = Array.new(args)
+	  	name = ary.shift
+	  	sql = "SELECT id from nodes where parent_id='#{current_id}' and name='#{name}'"
+	  	rows = @board.db.execute(sql)
+	  	if rows.empty?
+	  		sql = "INSERT INTO nodes values (NULL,'#{name}',#{current_id});"
+	  		@board.db.execute(sql)
+	  		id = @board.db.last_insert_row_id
+	  	else
+	  		id = rows[0][0]	  		
+	  	end
+	  	if ary.length > 0
+		  	find_or_make_db_path(ary, id)
+		else
+			@node_id = id
+		end
 	  end
 
 	  def address
@@ -79,32 +112,31 @@ module Chawk
 
 	  def +(other = 1)
 	  	raise ArgumentError unless other.integer?
-	  	self << self.last.value + other
+	  	int = (self.last.value.to_i + other.to_i)
+	  	self << int
 	  end  
 
 	  def -(other = 1)
 	  	raise ArgumentError unless other.integer?
-	  	self << self.last.value - other
+	  	int = (self.last.value.to_i - other.to_i)
+	  	self << int
 	  end  
 
 	  def <<(args)
 	  	if args.is_a?(Array)
-			#puts "ARGS: #{args}"
 	  		args.each do |arg|
 	  			if arg.is_a?(Integer)
-	  				p = SqlitePoint.new(self,arg)
-	  				@history << p
+	  				sql = "insert into value values (NULL,#{arg},#{@node_id},'#{DateTime.now.strftime('%Q') }') "
+			  		@board.db.execute(sql)
 	  			else
-	  				#puts "ARGS/ARG ERROR: #{arg}"
 	  				raise ArgumentError
 	  			end
 	  		end
 	  	else
 			if args.is_a?(Integer)
-				p = SqlitePoint.new(self,args)
-	  			@history << p
+  				sql = "insert into value values (NULL, #{args},#{@node_id},'#{DateTime.now.strftime('%Q') }') "
+		  		@board.db.execute(sql)
 			else
-	  			#puts "ARG ERROR: #{arg}"
   				raise ArgumentError
   			end
 	  	end
@@ -112,24 +144,35 @@ module Chawk
 	  end
 
 	  def last
-	  	return @history[-1]
+	  	sql = "SELECT id, value, recorded_at from value where node_id = #{@node_id} ORDER BY recorded_at DESC, id DESC LIMIT 1;"
+	  	rows = @board.db.execute(sql)
+	  	return nil if rows.empty?
+	  	SqlitePoint.new(self, rows[0][1], rows[0][2])
 	  end
 
 	  def clear_history!
-	  	@history.clear
+	  	sql = "DELETE FROM value where node_id = #{@node_id};"
+		@board.db.execute(sql)
 	  end
 
 	  def length
-	  	@history.length
+	  	sql = "SELECT COUNT(value) from value where node_id = #{@node_id};"
+		rows = @board.db.execute(sql)
+		rows[0][0]
 	  end
 
 	  def max
-	  	@history.max_by{|a|a.value}
+	  	sql = "SELECT id, value,recorded_at from value where node_id = #{@node_id} ORDER BY value DESC LIMIT 1;"
+		rows = @board.db.execute(sql)
+		rows[0][0]
+	  	SqlitePoint.new(self, rows[0][1], rows[0][2])
 	  end
 
 	  def min
-	  	@history.min_by{|a|a.value}
+	  	sql = "SELECT id, value,recorded_at from value where node_id = #{@node_id} ORDER BY value ASC LIMIT 1;"
+		rows = @board.db.execute(sql)
+		rows[0][0]
+	  	SqlitePoint.new(self, rows[0][1], rows[0][2])
 	  end
-
 	end
 end
