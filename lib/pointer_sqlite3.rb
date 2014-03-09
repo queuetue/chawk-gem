@@ -1,8 +1,19 @@
+require 'sqlite3'
 require "point_sqlite3"
 module Chawk
+	class SqliteChawkboard
+		attr_reader :db
+		def initialize(filename)
+			@db = SQLite3::Database.new(filename)
+		end
+		def get_pointer(path)
+			SqlitePointer.new(self, path)
+		end
+	end
 	class SqlitePointer 
 	  attr_accessor :path
-	  def initialize(path)
+	  def initialize(board,path)
+	  	@board = board
 		unless path.is_a?(Array)
 			raise ArgumentError
 			self.delete
@@ -19,7 +30,7 @@ module Chawk
 		end
 
 	    @path = path
-	    #puts "PATH: #{path}"
+	    puts "PATH: #{path}"
 	    @history = []#(1..25).collect{|x|rand(100)}
 	  end
 

@@ -5,8 +5,12 @@ end
 
 describe Chawk::SqlitePointer do
 	pointer = nil
+	board = nil
+	before :all do
+		board = Chawk::SqliteChawkboard.new("./test.sqlite3")
+	end
 	before :each do
-    	pointer = Chawk::SqlitePointer.new(['a','b'])
+    	pointer = board.get_pointer(['a','b'])
     	#puts pointer
     end
 
@@ -15,15 +19,16 @@ describe Chawk::SqlitePointer do
 	end
 
 	it "address is a/b" do
+		puts "X#{pointer.address()}Y"
  		pointer.address.should eq("a/b")
-	   	Chawk::SqlitePointer.new(['0','x','z']).address.should eq("0/x/z")
+	   	board.get_pointer(['0','x','z']).address.should eq("0/x/z")
  	end
 
  	it "rejects invalid paths" do
-		lambda {Chawk::SqlitePointer.new('A')}.should raise_error()
-		lambda {Chawk::SqlitePointer.new(0)}.should raise_error()
-		lambda {Chawk::SqlitePointer.new(['/','x','z'])}.should raise_error()
-		lambda {Chawk::SqlitePointer.new(['a/a','x','z'])}.should raise_error()
+		lambda {board.get_pointer('A')}.should raise_error()
+		lambda {board.get_pointer(0)}.should raise_error()
+		lambda {board.get_pointer(['/','x','z'])}.should raise_error()
+		lambda {board.get_pointer(['a/a','x','z'])}.should raise_error()
  	end
 
 	it "accepts <<" do
