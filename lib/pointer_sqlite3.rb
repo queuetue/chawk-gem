@@ -2,12 +2,51 @@ require 'sqlite3'
 require "point_sqlite3"
 module Chawk
 	class SqliteChawkboard
+		DB_PROTOCOL_VERSION = "0.0.1"
 		attr_reader :db
-		def initialize(filename)
+		def initialize(filename,options={})
 			@db = SQLite3::Database.new(filename)
+			ver = get_db_version
+			if !ver
+				self.create_db_version
+			elsif ver != DB_PROTOCOL_VERSION
+				unless self.usable_db_version?
+					if options[:IGNORE_DB_PROTOCOL]
+						puts "DATABASE PROTOCOL MISMATCH db: #{ver} / me: #{DB_PROTOCOL_VERSION}"
+					else
+						raise "BAD_DB_PROTOCOL"
+					end
+				end
+			end
 		end
+
 		def get_pointer(path)
 			SqlitePointer.new(self, path)
+		end
+
+		def get_db_version
+			sql = %q{SELECT count(name) FROM sqlite_master WHERE type='table' AND name='db_version';}
+			rows = db.execute(sql)
+			if rows[0][0] == 0
+				return nil
+			else
+				rows = db.execute(%q{SELECT version FROM db_version;})
+				return rows[0][0]
+			end
+		end
+
+		def set_db_version(version)
+			db.execute("UPDATE db_version set version='#{version}';")
+		end
+
+		def create_db_version
+			sql = "create table db_version (version varchar2(100)); insert into db_version values('#{DB_PROTOCOL_VERSION}');"
+			db.execute_batch(sql)
+		end
+
+		def usable_db_version?
+			rows = db.execute("SELECT version FROM db_version;")
+			return(rows[0][0] == DB_PROTOCOL_VERSION)
 		end
 	end
 	class SqlitePointer 
@@ -30,7 +69,7 @@ module Chawk
 		end
 
 	    @path = path
-	    puts "PATH: #{path}"
+	    #puts "PATH: #{path}"
 	    @history = []#(1..25).collect{|x|rand(100)}
 	  end
 

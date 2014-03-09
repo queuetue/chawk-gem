@@ -2,17 +2,27 @@ require 'spec_helper'
 filename = "./test.sqlite3"
 
 describe Chawk::SqliteChawkboard do
-
-	it "prevents database mismatch" do
-		lambda {Chawk::SqliteChawkboard.new(filename)}.should raise_error()
+	before :all do
+		File.delete(filename) if File.exist?(filename)
 	end
 
+	after :all do
+		File.delete(filename) if File.exist?(filename)
+	end
+
+	it "prevents database mismatch" do
+		lambda {Chawk::SqliteChawkboard.new(filename)}.should_not raise_error()
+		Chawk::SqliteChawkboard.new(filename,{IGNORE_DB_PROTOCOL:true}).set_db_version "testing-XX"
+		lambda {Chawk::SqliteChawkboard.new(filename)}.should raise_error()
+	end
 end
 
 describe Chawk::SqlitePointer do
 	pointer = nil
 	board = nil
+
 	before :all do
+		File.delete(filename) if File.exist?(filename)
 		board = Chawk::SqliteChawkboard.new(filename)
 	end
 	before :each do
@@ -25,7 +35,7 @@ describe Chawk::SqlitePointer do
 	end
 
 	it "address is a/b" do
-		puts "X#{pointer.address()}Y"
+		#puts "X#{pointer.address()}Y"
  		pointer.address.should eq("a/b")
 	   	board.get_pointer(['0','x','z']).address.should eq("0/x/z")
  	end
