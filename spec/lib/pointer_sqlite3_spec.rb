@@ -185,4 +185,26 @@ describe Chawk::SqlitePointer do
 		pointer.min.value.should eq(0)
 	end
 
+	it "does range" do
+ 		pointer.should respond_to(:range)
+
+	  	values = pointer.range(Time.now-2,Time.now)
+	  	expect(values.length).to be > (2) 
+
+ 		sleep(1)
+
+		pointer << 1
+		pointer << 2
+
+	  	values = pointer.range(Time.now-0.5,Time.now)
+	  	values.length.should eq(2) 
+
+	end
+
+	it "does since" do
+ 		pointer.should respond_to(:since)
+	  	values = pointer.since(Time.now-1)
+	  	values.length.should eq(2) 
+	end
+
 end

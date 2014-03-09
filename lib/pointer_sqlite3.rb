@@ -63,6 +63,11 @@ module Chawk
 
 	class SqlitePointer 
 	  attr_accessor :path
+
+	  def inspect
+	  	"#SqlitePointer '#{self.address}' (#{@node_id})#"
+	  end
+
 	  def initialize(board,path)
 	  	@board = board
 		unless path.is_a?(Array)
@@ -126,7 +131,8 @@ module Chawk
 	  	if args.is_a?(Array)
 	  		args.each do |arg|
 	  			if arg.is_a?(Integer)
-	  				sql = "insert into value values (NULL,#{arg},#{@node_id},'#{DateTime.now.strftime('%Q') }') "
+	  				dt = Time.now;
+	  				sql = "insert into value values (NULL,#{arg},#{@node_id},'#{dt.to_f }') "
 			  		@board.db.execute(sql)
 	  			else
 	  				raise ArgumentError
@@ -134,7 +140,8 @@ module Chawk
 	  		end
 	  	else
 			if args.is_a?(Integer)
-  				sql = "insert into value values (NULL, #{args},#{@node_id},'#{DateTime.now.strftime('%Q') }') "
+				dt = Time.now;
+  				sql = "insert into value values (NULL, #{args},#{@node_id},'#{dt.to_f }') "
 		  		@board.db.execute(sql)
 			else
   				raise ArgumentError
@@ -174,5 +181,21 @@ module Chawk
 		rows[0][0]
 	  	SqlitePoint.new(self, rows[0][1], rows[0][2])
 	  end
+
+	  def range(dt_from, dt_to)
+	  	sql = %Q{
+SELECT value, recorded_at from value where node_id = #{@node_id} and 
+	recorded_at >= #{dt_from.to_f} and
+	recorded_at <= #{dt_to.to_f}
+  	ORDER BY recorded_at ASC, id ASC;}
+  	#puts sql
+	  	rows = @board.db.execute(sql)
+	  	rows.map{|row|SqlitePoint.new(self, rows[0][0], rows[0][1])}
+	  end
+
+	  def since(dt_from)
+	  	self.range(dt_from,Time.now)
+	  end
+
 	end
 end
