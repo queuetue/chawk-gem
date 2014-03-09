@@ -1,13 +1,19 @@
 require 'spec_helper'
+filename = "./test.sqlite3"
 
-describe Chawk::SqlitePoint do
+describe Chawk::SqliteChawkBoard do
+
+	it "prevents database mismatch" do
+		lambda {Chawk::SqliteChawkboard.new(filename)}.should raise_error()
+	end
+
 end
 
 describe Chawk::SqlitePointer do
 	pointer = nil
 	board = nil
 	before :all do
-		board = Chawk::SqliteChawkboard.new("./test.sqlite3")
+		board = Chawk::SqliteChawkboard.new(filename)
 	end
 	before :each do
     	pointer = board.get_pointer(['a','b'])
