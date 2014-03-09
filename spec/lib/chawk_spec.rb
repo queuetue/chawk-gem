@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe Chawk::Point do
+describe Chawk::ArrayPoint do
 end
 
-describe Chawk::Pointer do
+describe Chawk::ArrayPointer do
 	pointer = nil
 	before :each do
-    	pointer = Chawk::Pointer.new(['a','b'])
+    	pointer = Chawk::ArrayPointer.new(['a','b'])
     	#puts pointer
     end
 
@@ -16,14 +16,14 @@ describe Chawk::Pointer do
 
 	it "address is a/b" do
  		pointer.address.should eq("a/b")
-	   	Chawk::Pointer.new(['0','x','z']).address.should eq("0/x/z")
+	   	Chawk::ArrayPointer.new(['0','x','z']).address.should eq("0/x/z")
  	end
 
  	it "rejects invalid paths" do
-		lambda {Chawk::Pointer.new('A')}.should raise_error()
-		lambda {Chawk::Pointer.new(0)}.should raise_error()
-		lambda {Chawk::Pointer.new(['/','x','z'])}.should raise_error()
-		lambda {Chawk::Pointer.new(['a/a','x','z'])}.should raise_error()
+		lambda {Chawk::ArrayPointer.new('A')}.should raise_error()
+		lambda {Chawk::ArrayPointer.new(0)}.should raise_error()
+		lambda {Chawk::ArrayPointer.new(['/','x','z'])}.should raise_error()
+		lambda {Chawk::ArrayPointer.new(['a/a','x','z'])}.should raise_error()
  	end
 
 	it "accepts <<" do
