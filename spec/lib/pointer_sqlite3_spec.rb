@@ -1,7 +1,7 @@
 require 'spec_helper'
 filename = "./test.sqlite3"
 
-describe Chawk::SqliteChawkBoard do
+describe Chawk::SqliteChawkboard do
 
 	it "prevents database mismatch" do
 		lambda {Chawk::SqliteChawkboard.new(filename)}.should raise_error()
