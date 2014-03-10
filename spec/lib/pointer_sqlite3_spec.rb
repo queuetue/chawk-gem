@@ -132,6 +132,12 @@ describe Chawk::SqlitePointer do
  		pointer.last.value.should eq(10000)
 	end
 
+	it "returns ordinal last" do
+		pointer << [10,9,8,7,6,5,4,3,2,1,0]
+ 		pointer.last(5).length.should eq(5)
+	end
+
+
 	it "has clear_history!()" do
  		pointer.should respond_to(:clear_history!)
 	end
@@ -202,6 +208,13 @@ describe Chawk::SqlitePointer do
 		pointer << 4
 
 	  	values = pointer.range(Time.now-2,Time.now)
+	  	#puts values
+
+		#payload_data = values.inject([]) do |result,d|
+		#	puts "D: #{d}"
+		#	result << {x:d.timestamp,y:d.value}
+		#end
+
 
 	  	#puts values
 

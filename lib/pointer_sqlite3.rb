@@ -182,11 +182,23 @@ module Chawk
 	  	self.last
 	  end
 
-	  def last
-	  	sql = "SELECT id, value, recorded_at from value where node_id = #{@node_id} ORDER BY recorded_at DESC, id DESC LIMIT 1;"
-	  	rows = @board.db.execute(sql)
-	  	return nil if rows.empty?
-	  	SqlitePoint.new(self, rows[0][1], rows[0][2])
+	  def last(count=1)
+	  	if count == 1
+		  	sql = "SELECT id, value, recorded_at from value where node_id = #{@node_id} ORDER BY recorded_at DESC, id DESC LIMIT 1;"
+		  	rows = @board.db.execute(sql)
+		  	return nil if rows.empty?
+		  	SqlitePoint.new(self, rows[0][1], rows[0][2])
+		else
+		  	sql = %Q{
+		  	SELECT * FROM 
+			  	(SELECT id, value, recorded_at from value 
+			  		where node_id = #{@node_id} 
+			  		ORDER BY recorded_at DESC, id DESC LIMIT #{count})
+				sub ORDER BY recorded_at ASC, id ASC;}
+		  	rows = @board.db.execute(sql)
+		  	return nil if rows.empty?
+		  	rows.inject([]){|ary,row|ary<<SqlitePoint.new(self, row[1], row[2])}
+		end
 	  end
 
 	  def clear_history!
@@ -215,7 +227,7 @@ module Chawk
 	  	SqlitePoint.new(self, rows[0][1], rows[0][2])
 	  end
 
-	  def range(dt_from, dt_to)
+	  def range(dt_from, dt_to,options={})
 	  	sql = %Q{
 SELECT value, recorded_at from value where node_id = #{@node_id} and 
 	recorded_at >= #{dt_from.to_f} and
