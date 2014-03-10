@@ -27,6 +27,10 @@ module Chawk
 	    @path.join("/")
 	  end
 
+	  def version
+	  	"#{Chawk::Version}/1017"
+	  end
+
 	  def +(other = 1)
 	  	raise ArgumentError unless other.integer?
 	  	self << self.last.value + other

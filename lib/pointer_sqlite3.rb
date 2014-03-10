@@ -88,10 +88,14 @@ module Chawk
 	end
 
 	class SqlitePointer 
-	  attr_accessor :path
+	  attr_accessor :path,:node_id
 
 	  def inspect
 	  	"#SqlitePointer '#{self.address}' (#{@node_id})#"
+	  end
+
+	  def version
+	  	"#{Chawk::VERSION}/1017"
 	  end
 
 	  def initialize(board,path)
@@ -219,7 +223,11 @@ SELECT value, recorded_at from value where node_id = #{@node_id} and
   	ORDER BY recorded_at ASC, id ASC;}
   	#puts sql
 	  	rows = @board.db.execute(sql)
-	  	rows.map{|row|SqlitePoint.new(self, rows[0][0], rows[0][1])}
+	  	#puts "#{rows}"
+	  	rows.map do |row|
+			#puts "#{row}"
+	  		SqlitePoint.new(self, row[0], row[1])
+	  	end
 	  end
 
 	  def since(dt_from)

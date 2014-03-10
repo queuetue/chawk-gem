@@ -10,6 +10,10 @@ describe Chawk::ArrayPointer do
     	#puts pointer
     end
 
+    it "has version()" do
+ 		pointer.should respond_to(:version)
+    end
+
 	it "has address()" do
  		pointer.should respond_to(:address)
 	end

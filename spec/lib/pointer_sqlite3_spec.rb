@@ -30,6 +30,11 @@ describe Chawk::SqlitePointer do
     	#puts pointer
     end
 
+    it "has version()" do
+ 		pointer.should respond_to(:version)
+		lambda {pointer.version}.should_not raise_error()
+    end
+
 	it "has address()" do
  		pointer.should respond_to(:address)
 	end
@@ -190,6 +195,20 @@ describe Chawk::SqlitePointer do
 
 	  	values = pointer.range(Time.now-2,Time.now)
 	  	expect(values.length).to be > (2) 
+
+		pointer << 1
+		pointer << 2
+		pointer << 3
+		pointer << 4
+
+	  	values = pointer.range(Time.now-2,Time.now)
+
+	  	#puts values
+
+	  	values[-1].value.should eq(4)
+	  	values[-2].value.should eq(3)
+	  	values[-3].value.should eq(2)
+	  	values[-4].value.should eq(1)
 
 	  	# TODO: disabled because wait is annoying
 	  	# reimpliment with passed-in timestamp
