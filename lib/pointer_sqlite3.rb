@@ -53,12 +53,38 @@ module Chawk
 			db.execute_batch(sql)
 			sql = "create table value (id INTEGER PRIMARY KEY, value INTEGER, node_id INTEGER, recorded_at DATETIME);"
 			db.execute_batch(sql)
+			sql = "create table notification_queue (address INTEGER, node_id INTEGER, notified_at DATETIME);"
+			db.execute_batch(sql)
 		end
 
 		def usable_db_version?
 			rows = db.execute("SELECT version FROM db_version;")
 			return(rows[0][0] == DB_PROTOCOL_VERSION)
 		end
+
+	  def pop_from_notification_queue()
+	  	sql = %Q{SELECT OID,address,node_id FROM notification_queue ORDER by OID ASC LIMIT 1;}
+		rows = db.execute(sql)
+		db.execute(%Q{DELETE FROM notification_queue WHERE oid = #{rows[0][0]};}) unless rows.empty?
+		(oid,address,node_id) = rows[0]
+	  end
+
+	  def add_to_notification_queue(node_id,address)
+	  	sql = %Q{INSERT INTO notification_queue values ('#{address}','#{node_id}','#{Time.now.to_f}');}
+		db.execute(sql)
+	  end
+
+	  def flush_notification_queue
+	  	sql = %Q{DELETE FROM notification_queue;}
+		db.execute(sql)
+	  end
+
+	  def notification_queue_length
+	  	sql = %Q{SELECT count(address) FROM notification_queue;}
+		rows = db.execute(sql)
+		rows[0][0]	  	
+	  end
+
 	end
 
 	class SqlitePointer 
@@ -134,6 +160,7 @@ module Chawk
 	  				dt = Time.now;
 	  				sql = "insert into value values (NULL,#{arg},#{@node_id},'#{dt.to_f }') "
 			  		@board.db.execute(sql)
+			  		@board.add_to_notification_queue(@node_id,self.address)
 	  			else
 	  				raise ArgumentError
 	  			end
@@ -143,6 +170,7 @@ module Chawk
 				dt = Time.now;
   				sql = "insert into value values (NULL, #{args},#{@node_id},'#{dt.to_f }') "
 		  		@board.db.execute(sql)
+			  	@board.add_to_notification_queue(@node_id,self.address)
 			else
   				raise ArgumentError
   			end
@@ -160,6 +188,7 @@ module Chawk
 	  def clear_history!
 	  	sql = "DELETE FROM value where node_id = #{@node_id};"
 		@board.db.execute(sql)
+		@board.add_to_notification_queue(@node_id,self.address)
 	  end
 
 	  def length
