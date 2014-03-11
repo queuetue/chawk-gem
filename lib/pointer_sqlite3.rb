@@ -70,7 +70,7 @@ module Chawk
 	  end
 
 	  def add_to_notification_queue(node_id,address)
-	  	sql = %Q{INSERT INTO notification_queue values ('#{address}','#{node_id}','#{Time.now.to_f}');}
+	  	sql = %Q{INSERT INTO notification_queue values ('#{address}','#{node_id}','#{Time.now.to_i}');}
 		db.execute(sql)
 	  end
 
@@ -88,6 +88,8 @@ module Chawk
 	end
 
 	class SqlitePointer 
+	  include Chawk::Quantizer
+
 	  attr_accessor :path,:node_id
 
 	  def inspect
@@ -157,24 +159,25 @@ module Chawk
 	  	self << int
 	  end  
 
+	  def _insert(val,ts,options={})
+		sql = "insert into value values (NULL,#{val},#{@node_id},'#{ts.to_i }')"
+		@board.db.execute(sql)
+		@board.add_to_notification_queue(@node_id,self.address) unless options[:supress_notify]
+	  end
+
 	  def <<(args)
+		dt = Time.now
 	  	if args.is_a?(Array)
 	  		args.each do |arg|
 	  			if arg.is_a?(Integer)
-	  				dt = Time.now;
-	  				sql = "insert into value values (NULL,#{arg},#{@node_id},'#{dt.to_f }') "
-			  		@board.db.execute(sql)
-			  		@board.add_to_notification_queue(@node_id,self.address)
+	  				self._insert(arg,dt.to_i)
 	  			else
 	  				raise ArgumentError
 	  			end
 	  		end
 	  	else
 			if args.is_a?(Integer)
-				dt = Time.now;
-  				sql = "insert into value values (NULL, #{args},#{@node_id},'#{dt.to_f }') "
-		  		@board.db.execute(sql)
-			  	@board.add_to_notification_queue(@node_id,self.address)
+	  			self._insert(args,dt.to_i)
 			else
   				raise ArgumentError
   			end
@@ -229,15 +232,13 @@ module Chawk
 
 	  def range(dt_from, dt_to,options={})
 	  	sql = %Q{
-SELECT value, recorded_at from value where node_id = #{@node_id} and 
-	recorded_at >= #{dt_from.to_f} and
-	recorded_at <= #{dt_to.to_f}
+	SELECT value, recorded_at from value where node_id = #{@node_id} and 
+	recorded_at >= #{dt_from.to_i} and
+	recorded_at <= #{dt_to.to_i}
   	ORDER BY recorded_at ASC, id ASC;}
-  	#puts sql
 	  	rows = @board.db.execute(sql)
-	  	#puts "#{rows}"
+	  	#qrows = self.quantize(rows,0.000005)
 	  	rows.map do |row|
-			#puts "#{row}"
 	  		SqlitePoint.new(self, row[0], row[1])
 	  	end
 	  end

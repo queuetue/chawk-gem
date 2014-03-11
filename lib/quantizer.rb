@@ -18,6 +18,8 @@ module Chawk
 
 		def quantize(ary,step_width,steps=nil)
 			# TODO: Needs lots more testing, then faster implementation
+			# with caching (probaby at data add point)
+			#puts "#{ary.length}"
 			step = starting_step(ary[0][1],step_width)
 			end_step = ending_step(ary[-1][1], step_width)
 			out = [ary[0]]
@@ -25,7 +27,7 @@ module Chawk
 				step -= step_width
 				next_step = step - step_width
 				data = ary[0]
-				data = ary.reverse.detect{|a|a[1] > next_step} || (ary[-1])
+				data = ary.reverse.detect{|a|a[1] > next_step} || data#(ary[-1])
 				out << [data[0],step]
 			end
 			out

@@ -7,8 +7,12 @@ module Chawk
 			@timestamp = timestamp
 		end
 
+		def to_s  
+			"#{@value}:#{@timestamp}#Point"  
+		end  
+
 		def inspect  
-			"#{@value}#Point"  
+			"#{@value}:#{@timestamp}#Point"  
 		end  
 	end
 end
