@@ -148,13 +148,13 @@ module Chawk
 	  end
 
 	  def +(other = 1)
-	  	raise ArgumentError unless other.integer?
+	  	raise ArgumentError unless other.is_a?(Numeric) && other.integer?
 	  	int = (self.last.value.to_i + other.to_i)
 	  	self << int
 	  end  
 
 	  def -(other = 1)
-	  	raise ArgumentError unless other.integer?
+	  	raise ArgumentError unless other.is_a?(Numeric) && other.integer?
 	  	int = (self.last.value.to_i - other.to_i)
 	  	self << int
 	  end  
