@@ -11,7 +11,7 @@
 [travis pull requests]: https://travis-ci.org/queuetue/chawk-gem/pull_requests
 [Dependency Status]: https://gemnasium.com/queuetue/chawk-gem
 [Code Climate]: https://codeclimate.com/github/queuetue/chawk-gem
-[Coverage Status]: https://coveralls.io/r/elgalu/boolean_class
+[![Coverage Status](https://coveralls.io/repos/queuetue/chawk-gem/badge.png)](https://coveralls.io/r/queuetue/chawk-gem)
 
 [GV img]: https://badge.fury.io/rb/chawk-gem.png
 [BS img]: https://travis-ci.org/queuetue/chawk-gem.png
