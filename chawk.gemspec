@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "dm-postgres-adapter"
   spec.add_runtime_dependency "data_mapper"
   spec.add_runtime_dependency "dm-is-tree"
+  spec.add_runtime_dependency "dm-aggregates"
 
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"

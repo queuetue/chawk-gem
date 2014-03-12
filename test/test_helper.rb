@@ -20,6 +20,8 @@ ENV['RACK_ENV'] = 'test'
 WORKING_DIRECTORY = Dir.pwd.freeze
 ARGV.clear
 
+DataMapper::Logger.new('db.log', :debug)
+
 adapter = DataMapper.setup(:default, 'sqlite::memory:')
 DataMapper.finalize
 DataMapper.auto_upgrade!
