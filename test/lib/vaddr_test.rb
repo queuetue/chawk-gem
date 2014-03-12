@@ -155,9 +155,9 @@ describe Chawk::Vaddr do
   end
 
   it :acts_like_a_string do
-    @vaddr.<< "GET DOWN!"
+    @vaddr << "GET DOWN!"
     last = @vaddr.last
-    last.must_equal ("GET DOWN!")
+    last.to_s.must_equal ("GET DOWN!")
   end
 
 

@@ -1,3 +1,4 @@
+
 module Chawk
 	class Paddr
 		include Addressable
@@ -77,13 +78,13 @@ module Chawk
 	  def last(count=1)
 	  	if count == 1
 	  		if @node.points.length > 0
-		  		VValue.new(self, @node.points.last)
+		  		PPoint.new(self, @node.points.last)
 		  	else
 		  		nil
 		  	end
 		else
 			vals = @node.points.all(limit:count,order:[:observed_at.asc, :id.asc])
-			last_items = vals.each.collect{|val|VValue.new(self, @node.points.last)}			
+			last_items = vals.each.collect{|val|PPoint.new(self, @node.points.last)}			
 		end
 	  end
 

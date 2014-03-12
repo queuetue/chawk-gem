@@ -204,6 +204,12 @@ describe Chawk::Paddr do
   	@paddr.since(ts-300).length.must_equal(2) 
 	end
 
+  it :acts_like_an_integer do
+    @paddr << 36878
+    last = @paddr.last
+    last.to_i.must_equal 36878
+  end
+
 	# it "does mq" do
 	# 	@board.flush_notification_queue
 	# 	@board.notification_queue_length.must_equal (0)
