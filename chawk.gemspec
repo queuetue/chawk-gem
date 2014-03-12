@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('haml', '~> 4.0.4')
   spec.add_development_dependency('minitest', '~> 5.2.0')
   spec.add_development_dependency('mocha', '~> 0.14.0')
-  spec.add_development_dependency('fakeweb', '~> 1.3.0')
+  #spec.add_development_dependency('fakeweb', '~> 1.3.0')
   spec.add_development_dependency('simplecov', '~> 0.8.2')
   spec.add_development_dependency('rack-test')
   spec.add_development_dependency('json')
