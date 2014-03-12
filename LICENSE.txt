@@ -1,4 +1,4 @@
-Copyright (c) 2014 queuetue
+Copyright (c) 2014 Scott Russell (queuetue@gmail.com / queuetue.com)
 
 MIT License
 
