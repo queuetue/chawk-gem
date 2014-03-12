@@ -47,14 +47,14 @@ module Chawk
 			dt = Time.now
 			if args.is_a?(Array)
 				args.each do |arg|
-					if arg.is_a?(Integer)
+					if arg.is_a?(String)
 						self._insert(arg,dt)
 					else
 						raise ArgumentError
 					end
 				end
 			else
-				if args.is_a?(Integer)
+				if args.is_a?(String)
 					_insert(args,dt)
 				else
 					raise ArgumentError
@@ -62,18 +62,6 @@ module Chawk
 			end
 			self.last
 		end
-
-	  def +(other = 1)
-	  	raise ArgumentError unless other.is_a?(Numeric) && other.integer?
-	  	int = (self.last.value.to_i + other.to_i)
-	  	self << int
-	  end  
-
-	  def -(other = 1)
-	  	raise ArgumentError unless other.is_a?(Numeric) && other.integer?
-	  	int = (self.last.value.to_i - other.to_i)
-	  	self << int
-	  end  
 
 	  def last(count=1)
 	  	if count == 1
@@ -86,14 +74,6 @@ module Chawk
 			vals = @node.values.all(limit:count,order:[:observed_at.asc, :id.asc])
 			last_items = vals.each.collect{|val|VValue.new(self, @node.values.last)}			
 		end
-	  end
-
-	  def max
-	  	@node.values.max(:value)
-	  end
-
-	  def min
-	  	@node.values.min(:value)
 	  end
 
 	  def range(dt_from, dt_to,options={})
