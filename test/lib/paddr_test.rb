@@ -16,8 +16,10 @@ describe Chawk::Paddr do
  	end
 
  	it "address is a/b" do
-  		@paddr.address.must_equal("a/b")
- 	   	@board.points.addr(['0','x','z']).address.must_equal("0/x/z")
+      @paddr.address.must_equal("a/b")
+      @paddr = @board.points.addr(['a','b'])
+      @board.points.addr(['0','x','z']).address.must_equal("0/x/z")
+      @board.points.addr(['0','x','z']).address.must_equal("0/x/z")
   	end
 
   	it "rejects invalid paths" do

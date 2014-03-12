@@ -24,6 +24,11 @@ module Chawk
 			end
 
 			@node = find_or_create_addr(path)
+
+			unless @node
+				raise ArgumentError
+			end
+
 		end
 		
 		def root_node
@@ -115,6 +120,9 @@ module Chawk
 			@timestamp = value.observed_at
 		end
 		def to_i
+			@value
+		end
+		def to_int
 			@value
 		end
 	end

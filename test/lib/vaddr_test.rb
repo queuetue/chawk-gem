@@ -18,6 +18,7 @@ describe Chawk::Vaddr do
 
  	it "address is a/b" do
   		@vaddr.address.must_equal("a/b")
+      @board.points.addr(['a','b']).address.must_equal("a/b")
  	   	@board.values.addr(['0','x','z']).address.must_equal("0/x/z")
   	end
 

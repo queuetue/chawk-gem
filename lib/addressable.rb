@@ -7,7 +7,7 @@ module Chawk
 				node = model.create(name:name)
 			else
 				node = parent.children.first(name:name)
-				node ? node : parent.children.create(name:name)
+				node ? node : node = parent.children.create(name:name)
 			end
 			return node
 		end
