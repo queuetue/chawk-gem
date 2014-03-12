@@ -3,8 +3,8 @@ require 'test_helper'
 describe Chawk::Vaddr do
  	before do
  		@board = Chawk::Board.new()
-     	@vaddr = @board.values.addr(['a','b'])
-     	@vaddr.clear_history!
+   	@vaddr = @board.values.addr(['a','b'])
+   	@vaddr.clear_history!
  	end
 
  	it "has path" do
@@ -126,7 +126,7 @@ describe Chawk::Vaddr do
 
  	it "returns ordinal last" do
  		@vaddr << [10,9,8,7,6,5,4,3,2,1,0]
-  		@vaddr.last(5).length.must_equal(5)
+  	@vaddr.last(5).length.must_equal(5)
  	end
 
  	it "has max()" do
@@ -160,7 +160,7 @@ describe Chawk::Vaddr do
  		@vaddr.min.must_equal(0)
  	end
 
- 	it "does range" do
+ 	it :does_range do
   		@vaddr.must_respond_to(:range)
 
   		ts = Time.now
@@ -196,29 +196,29 @@ describe Chawk::Vaddr do
  		@vaddr._insert(8,ts-200)
  		@vaddr._insert(10,ts-5)
  		@vaddr.must_respond_to(:since)
-	  	values = @vaddr.since(ts-1000).length.must_equal(4) 
-	  	values = @vaddr.since(ts-300).length.must_equal(2) 
+  	@vaddr.since(ts-1000).length.must_equal(4) 
+  	@vaddr.since(ts-300).length.must_equal(2) 
 	end
 
-	it "does mq" do
-		@board.flush_notification_queue
-		@board.notification_queue_length.must_equal (0)
+	# it "does mq" do
+	# 	@board.flush_notification_queue
+	# 	@board.notification_queue_length.must_equal (0)
 
-		pointers = []
-	   	pointers << @board.values.addr(['0','1','2'])
-	   	pointers << @board.values.addr(['0','1','3'])
-	   	pointers << @board.values.addr(['0','1','4'])
-	   	pointers << @board.values.addr(['0','1','5'])
+	# 	pointers = []
+	#    	pointers << @board.values.addr(['0','1','2'])
+	#    	pointers << @board.values.addr(['0','1','3'])
+	#    	pointers << @board.values.addr(['0','1','4'])
+	#    	pointers << @board.values.addr(['0','1','5'])
 
-	   	pointers.each{|p|p<<10}
+	#    	pointers.each{|p|p<<10}
 
-		@board.notification_queue_length.must_equal (4)
-		x = @board.pop_from_notification_queue
-		x.length.must_equal(3)
-		@board.notification_queue_length.must_equal (3)
-		x = @board.pop_from_notification_queue
-		x = @board.pop_from_notification_queue
-		@board.notification_queue_length.must_equal (1)
-		x.length.must_equal(3)
-	end
+	# 	@board.notification_queue_length.must_equal (4)
+	# 	x = @board.pop_from_notification_queue
+	# 	x.length.must_equal(3)
+	# 	@board.notification_queue_length.must_equal (3)
+	# 	x = @board.pop_from_notification_queue
+	# 	x = @board.pop_from_notification_queue
+	# 	@board.notification_queue_length.must_equal (1)
+	# 	x.length.must_equal(3)
+	# end
 end

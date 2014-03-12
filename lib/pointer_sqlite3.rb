@@ -1,94 +1,94 @@
-require 'sqlite3'
+#require 'sqlite3'
 require "point_sqlite3"
 module Chawk
-	class SqliteChawkboard
-		DB_PROTOCOL_VERSION = "0.0.1"
-		attr_reader :db, :root_node
-		def initialize(filename,options={})
-			@db = SQLite3::Database.new(filename)
-			@root_node = get_or_create_root_node_id
-			#ver = get_db_version
-			#if !ver
-			#	self.create_db_version
-			#elsif ver != DB_PROTOCOL_VERSION
-			#	unless self.usable_db_version?
-			#		if options[:IGNORE_DB_PROTOCOL]
-			#			puts "DATABASE PROTOCOL MISMATCH db: #{ver} / me: #{DB_PROTOCOL_VERSION}"
-			#		else
-			#			raise "BAD_DB_PROTOCOL"
-			#		end
-			#	end
-			#end
-		end
+	# class SqliteChawkboard
+	# 	DB_PROTOCOL_VERSION = "0.0.1"
+	# 	attr_reader :db, :root_node
+	# 	def initialize(filename,options={})
+	# 		@db = SQLite3::Database.new(filename)
+	# 		@root_node = get_or_create_root_node_id
+	# 		#ver = get_db_version
+	# 		#if !ver
+	# 		#	self.create_db_version
+	# 		#elsif ver != DB_PROTOCOL_VERSION
+	# 		#	unless self.usable_db_version?
+	# 		#		if options[:IGNORE_DB_PROTOCOL]
+	# 		#			puts "DATABASE PROTOCOL MISMATCH db: #{ver} / me: #{DB_PROTOCOL_VERSION}"
+	# 		#		else
+	# 		#			raise "BAD_DB_PROTOCOL"
+	# 		#		end
+	# 		#	end
+	# 		#end
+	# 	end
 
-		def get_root_node_id
-			#sql = %q{SELECT id FROM nodes WHERE name='ROOT' and parent_id IS NULL;}
-			#rows = db.execute(sql)
-			#return rows[0][0];
-			
-		end
+	# 	def get_root_node_id
+	# 		#sql = %q{SELECT id FROM nodes WHERE name='ROOT' and parent_id IS NULL;}
+	# 		#rows = db.execute(sql)
+	# 		#return rows[0][0];
 
-		def get_pointer(path)
-			SqlitePointer.new(self, path)
-		end
+	# 	end
 
-		def get_db_version
-			sql = %q{SELECT count(name) FROM sqlite_master WHERE type='table' AND name='db_version';}
-			rows = db.execute(sql)
-			if rows[0][0] == 0
-				return nil
-			else
-				rows = db.execute(%q{SELECT version FROM db_version;})
-				return rows[0][0]
-			end
-		end
+	# 	def get_pointer(path)
+	# 		SqlitePointer.new(self, path)
+	# 	end
 
-		def set_db_version(version)
-			db.execute("UPDATE db_version set version='#{version}';")
-		end
+	# 	def get_db_version
+	# 		sql = %q{SELECT count(name) FROM sqlite_master WHERE type='table' AND name='db_version';}
+	# 		rows = db.execute(sql)
+	# 		if rows[0][0] == 0
+	# 			return nil
+	# 		else
+	# 			rows = db.execute(%q{SELECT version FROM db_version;})
+	# 			return rows[0][0]
+	# 		end
+	# 	end
 
-		def create_db_version
-			sql = "create table db_version (version varchar2(100)); insert into db_version values('#{DB_PROTOCOL_VERSION}');"
-			db.execute_batch(sql)
-			sql = "create table nodes (id INTEGER PRIMARY KEY, name TEXT, parent_id INTEGER); insert into nodes values (NULL, 'ROOT', NULL);"
-			db.execute_batch(sql)
-			sql = "create table value (id INTEGER PRIMARY KEY, value INTEGER, node_id INTEGER, recorded_at DATETIME);"
-			db.execute_batch(sql)
-			sql = "create table notification_queue (address INTEGER, node_id INTEGER, notified_at DATETIME);"
-			db.execute_batch(sql)
-		end
+	# 	def set_db_version(version)
+	# 		db.execute("UPDATE db_version set version='#{version}';")
+	# 	end
 
-		def usable_db_version?
-			rows = db.execute("SELECT version FROM db_version;")
-			return(rows[0][0] == DB_PROTOCOL_VERSION)
-		end
+	# 	def create_db_version
+	# 		sql = "create table db_version (version varchar2(100)); insert into db_version values('#{DB_PROTOCOL_VERSION}');"
+	# 		db.execute_batch(sql)
+	# 		sql = "create table nodes (id INTEGER PRIMARY KEY, name TEXT, parent_id INTEGER); insert into nodes values (NULL, 'ROOT', NULL);"
+	# 		db.execute_batch(sql)
+	# 		sql = "create table value (id INTEGER PRIMARY KEY, value INTEGER, node_id INTEGER, recorded_at DATETIME);"
+	# 		db.execute_batch(sql)
+	# 		sql = "create table notification_queue (address INTEGER, node_id INTEGER, notified_at DATETIME);"
+	# 		db.execute_batch(sql)
+	# 	end
 
-	  def pop_from_notification_queue()
-	  	sql = %Q{SELECT OID,address,node_id FROM notification_queue ORDER by OID ASC LIMIT 1;}
-		rows = db.execute(sql)
-		db.execute(%Q{DELETE FROM notification_queue WHERE oid = #{rows[0][0]};}) unless rows.empty?
-		(oid,address,node_id) = rows[0]
-	  end
+	# 	def usable_db_version?
+	# 		rows = db.execute("SELECT version FROM db_version;")
+	# 		return(rows[0][0] == DB_PROTOCOL_VERSION)
+	# 	end
 
-	  def add_to_notification_queue(node_id,address)
-	  	sql = %Q{INSERT INTO notification_queue values ('#{address}','#{node_id}','#{Time.now.to_i}');}
-		db.execute(sql)
-	  end
+	#   def pop_from_notification_queue()
+	#   	sql = %Q{SELECT OID,address,node_id FROM notification_queue ORDER by OID ASC LIMIT 1;}
+	# 	rows = db.execute(sql)
+	# 	db.execute(%Q{DELETE FROM notification_queue WHERE oid = #{rows[0][0]};}) unless rows.empty?
+	# 	(oid,address,node_id) = rows[0]
+	#   end
 
-	  def flush_notification_queue
-	  	sql = %Q{DELETE FROM notification_queue;}
-		db.execute(sql)
-	  end
+	#   def add_to_notification_queue(node_id,address)
+	#   	sql = %Q{INSERT INTO notification_queue values ('#{address}','#{node_id}','#{Time.now.to_i}');}
+	# 	db.execute(sql)
+	#   end
 
-	  def notification_queue_length
-	  	sql = %Q{SELECT count(address) FROM notification_queue;}
-		rows = db.execute(sql)
-		rows[0][0]	  	
-	  end
+	#   def flush_notification_queue
+	#   	sql = %Q{DELETE FROM notification_queue;}
+	# 	db.execute(sql)
+	#   end
 
-	end
+	#   def notification_queue_length
+	#   	sql = %Q{SELECT count(address) FROM notification_queue;}
+	# 	rows = db.execute(sql)
+	# 	rows[0][0]	  	
+	#   end
 
-	class SqlitePointer 
+	# end
+
+	class Pointer 
 	  include Chawk::Quantizer
 
 	  attr_accessor :path,:node_id
@@ -113,10 +113,15 @@ module Chawk
 			self.delete
 		end
 
-	unless path.select{|x|x.include?('/')}.empty?
+		unless path.select{|x|x !~ /\w/}.empty?
 			raise ArgumentError
 			self.delete
 		end
+
+		#unless path.select{|x|x.include?('/')}.empty?
+		#	raise ArgumentError
+		#	self.delete
+		#end
 
 	    @path = path
 	    @node_id = find_or_make_db_path(path, @board.root_node)

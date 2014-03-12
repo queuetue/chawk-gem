@@ -21,6 +21,10 @@ WORKING_DIRECTORY = Dir.pwd.freeze
 ARGV.clear
 
 DataMapper::Logger.new('db.log', :debug)
+#DataMapper::Logger.new($stdout, :debug)
+DataMapper::Model.raise_on_save_failure = true
+
+DataMapper.logger.debug "Here we go!"
 
 adapter = DataMapper.setup(:default, 'sqlite::memory:')
 DataMapper.finalize

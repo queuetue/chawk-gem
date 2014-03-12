@@ -1,7 +1,7 @@
 module Chawk
 	class Vaddr
 		include Addressable
-		attr_reader :store, :path
+		attr_reader :store, :path, :node
 		def initialize(store, path)
 			@store = store
 			@path = path
@@ -18,8 +18,9 @@ module Chawk
 				raise ArgumentError
 			end
 
-			unless path.select{|x|x.include?('/')}.empty?
+			unless path.select{|x|x !~ /^\w+$/}.empty?
 				raise ArgumentError
+				self.delete
 			end
 
 			@node = find_or_create_addr(path)
@@ -38,12 +39,8 @@ module Chawk
 		end
 
 		def _insert(val,ts,options={})
-			#raise "#{val}, #{ts}" 
-			@node.values.create(value:val,observed_at:ts)
-
-			#sql = "insert into value values (NULL,#{val},#{@node_id},'#{ts.to_i }')"
-			#@board.db.execute(sql)
-			#@board.add_to_notification_queue(@node_id,self.address) unless options[:supress_notify]
+			DataMapper.logger.debug "#{val} -- #{ts.to_f}"
+			@node.values.create(value:val,observed_at:ts.to_f)
 		end
 
 		def <<(args)
@@ -92,11 +89,20 @@ module Chawk
 	  end
 
 	  def max
-		Chawk::Models::Value.max(:value)
+	  	@node.values.max(:value)
 	  end
 
 	  def min
-		Chawk::Models::Value.min(:value)
+	  	@node.values.min(:value)
+	  end
+
+	  def range(dt_from, dt_to,options={})
+		vals = @node.values.all(:observed_at.gte => dt_from, :observed_at.lte =>dt_to, limit:1000,order:[:observed_at.asc, :id.asc])
+		vals.each.collect{|val|VValue.new(self, @node.values.last)} unless vals.nil?
+	  end
+
+	  def since(dt_from)
+	  	self.range(dt_from,Time.now)
 	  end
 
 	end

@@ -17,7 +17,7 @@ module Chawk
 
 			property :id, Serial
 			property :value, Integer
-			property :observed_at, DateTime
+			property :observed_at, Float
 			property :recorded_at, DateTime
 			belongs_to :value_node
 
