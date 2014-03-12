@@ -4,6 +4,7 @@ require 'dm-aggregates'
 module Chawk
 	module Models
 
+
 		class PointNode
 			include DataMapper::Resource
 			property :id, Serial
@@ -27,7 +28,7 @@ module Chawk
 		    end
 		end
 
-		class ValueNode
+		class ValueNode 
 			include DataMapper::Resource
 			property :id, Serial
 			property :name, String

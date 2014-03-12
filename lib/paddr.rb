@@ -1,51 +1,14 @@
-
 module Chawk
 	class Paddr
 		include Addressable
-		attr_reader :store, :path, :node
-		def initialize(store, path)
-			@store = store
-			@path = path
-
-			def model
-				Chawk::Models::PointNode
-			end
-
-			unless path.is_a?(Array)
-				raise ArgumentError
-			end
-
-			unless path.reject{|x|x.is_a?(String)}.empty?
-				raise ArgumentError
-			end
-
-			unless path.select{|x|x !~ /^\w+$/}.empty?
-				raise ArgumentError
-			end
-
-			@node = find_or_create_addr(path)
-
-			unless @node
-				raise ArgumentError
-			end
-
-		end
-		
-		def root_node
-			@store.root_node
-		end
-
-		def length
-			@node.points.length
-		end
-
-		def clear_history!
-			Chawk::Models::Value.all(value_node_id:@node.id).destroy
-		end
 
 		def _insert(val,ts,options={})
 			DataMapper.logger.debug "PREINSERT PADDR #{val} -- #{ts.to_f}"
 			@node.points.create(value:val,observed_at:ts.to_f)
+		end
+
+		def clear_history!
+			Chawk::Models::Value.all(value_node_id:@node.id).destroy
 		end
 
 		def <<(args)
@@ -89,8 +52,12 @@ module Chawk
 		  	end
 		else
 			vals = @node.points.all(limit:count,order:[:observed_at.asc, :id.asc])
-			last_items = vals.each.collect{|val|PPoint.new(self, @node.points.last)}			
+			last_items = vals.each.collect{|val|PPoint.new(self, val)}
 		end
+	  end
+
+  	  def length
+	  	@node.points.length
 	  end
 
 	  def max
@@ -113,12 +80,8 @@ module Chawk
 	end
 
 	class PPoint
-		attr_reader :paddr, :value, :timestamp
-		def initialize(vaddr, value)
-			@vaddr = vaddr
-			@value = value.value
-			@timestamp = value.observed_at
-		end
+		include DataPoint
+
 		def to_i
 			@value
 		end

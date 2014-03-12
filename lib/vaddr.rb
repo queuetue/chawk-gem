@@ -1,46 +1,20 @@
 module Chawk
 	class Vaddr
 		include Addressable
-		attr_reader :store, :path, :node
-		def initialize(store, path)
-			@store = store
-			@path = path
 
-			def model
-				Chawk::Models::ValueNode
-			end
-
-			unless path.is_a?(Array)
-				raise ArgumentError
-			end
-
-			unless path.reject{|x|x.is_a?(String)}.empty?
-				raise ArgumentError
-			end
-
-			unless path.select{|x|x !~ /^\w+$/}.empty?
-				raise ArgumentError
-			end
-
-			@node = find_or_create_addr(path)
-		end
-		
-		def root_node
-			@store.root_node
-		end
-
-		def length
-			@node.values.length
+		def _insert(val,ts,options={})
+			DataMapper.logger.debug "PREINSERT VADDR #{val.length} -- #{ts.to_f}"
+			@node.values.create(value:val,observed_at:ts.to_f)
 		end
 
 		def clear_history!
 			Chawk::Models::Value.all(value_node_id:@node.id).destroy
 		end
 
-		def _insert(val,ts,options={})
-			DataMapper.logger.debug "PREINSERT VADDR #{val.length} -- #{ts.to_f}"
-			@node.values.create(value:val,observed_at:ts.to_f)
+		def length
+			@node.values.length
 		end
+
 
 		def <<(args)
 			dt = Time.now
@@ -87,12 +61,8 @@ module Chawk
 	end
 
 	class VValue
-		attr_reader :vaddr, :value, :timestamp
-		def initialize(vaddr, value)
-			@vaddr = vaddr
-			@value = value.value
-			@timestamp = value.observed_at
-		end
+		include DataPoint
+
 		def to_s
 			@value
 		end

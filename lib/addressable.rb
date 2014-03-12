@@ -1,5 +1,48 @@
 module Chawk
+
+	module DataPoint
+		attr_reader :paddr, :value, :timestamp
+		def initialize(vaddr, value)
+			@vaddr = vaddr
+			@value = value.value
+			@timestamp = value.observed_at
+		end
+	end
+
 	module Addressable
+
+		attr_reader :store, :path, :node
+		def initialize(store, path)
+			@store = store
+			@path = path
+
+			def model
+				Chawk::Models::PointNode
+			end
+
+			unless path.is_a?(Array)
+				raise ArgumentError
+			end
+
+			unless path.reject{|x|x.is_a?(String)}.empty?
+				raise ArgumentError
+			end
+
+			unless path.select{|x|x !~ /^\w+$/}.empty?
+				raise ArgumentError
+			end
+
+			@node = find_or_create_addr(path)
+
+			unless @node
+				raise ArgumentError
+			end
+
+		end
+
+		def root_node
+			@store.root_node
+		end
 
 		def find_or_create_node(parent,name)
 			#TODO: AUTHENTICATION / PERMISSIONS
