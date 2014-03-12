@@ -10,7 +10,7 @@ end
 
 describe Chawk::SqlitePointer do
 	before do
-		@board = Chawk::SqliteChawkboard.new(":memory:")
+		@board = Chawk::Board.new() #SqliteChawkboard.new(":memory:")
     	@pointer = @board.get_pointer(['a','b'])
 	end
 
@@ -226,6 +226,4 @@ describe Chawk::SqlitePointer do
 		@board.notification_queue_length.must_equal (1)
 		x.length.must_equal(3)
 	end
-
-
 end

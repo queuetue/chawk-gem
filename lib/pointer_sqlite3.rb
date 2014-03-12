@@ -6,25 +6,26 @@ module Chawk
 		attr_reader :db, :root_node
 		def initialize(filename,options={})
 			@db = SQLite3::Database.new(filename)
-			ver = get_db_version
-			if !ver
-				self.create_db_version
-			elsif ver != DB_PROTOCOL_VERSION
-				unless self.usable_db_version?
-					if options[:IGNORE_DB_PROTOCOL]
-						puts "DATABASE PROTOCOL MISMATCH db: #{ver} / me: #{DB_PROTOCOL_VERSION}"
-					else
-						raise "BAD_DB_PROTOCOL"
-					end
-				end
-			end
-			@root_node = get_root_node_id
+			@root_node = get_or_create_root_node_id
+			#ver = get_db_version
+			#if !ver
+			#	self.create_db_version
+			#elsif ver != DB_PROTOCOL_VERSION
+			#	unless self.usable_db_version?
+			#		if options[:IGNORE_DB_PROTOCOL]
+			#			puts "DATABASE PROTOCOL MISMATCH db: #{ver} / me: #{DB_PROTOCOL_VERSION}"
+			#		else
+			#			raise "BAD_DB_PROTOCOL"
+			#		end
+			#	end
+			#end
 		end
 
 		def get_root_node_id
-			sql = %q{SELECT id FROM nodes WHERE name='ROOT' and parent_id IS NULL;}
-			rows = db.execute(sql)
-			return rows[0][0];
+			#sql = %q{SELECT id FROM nodes WHERE name='ROOT' and parent_id IS NULL;}
+			#rows = db.execute(sql)
+			#return rows[0][0];
+			
 		end
 
 		def get_pointer(path)

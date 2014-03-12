@@ -19,3 +19,7 @@ FakeWeb.allow_net_connect = false
 ENV['RACK_ENV'] = 'test'
 WORKING_DIRECTORY = Dir.pwd.freeze
 ARGV.clear
+
+adapter = DataMapper.setup(:default, 'sqlite::memory:')
+DataMapper.finalize
+DataMapper.auto_upgrade!
