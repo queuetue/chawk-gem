@@ -24,7 +24,10 @@ describe Chawk::Vaddr do
  		lambda {@board.values.addr('A')}.must_raise(ArgumentError)
  		lambda {@board.values.addr(0)}.must_raise(ArgumentError)
  		lambda {@board.values.addr(['/','x','z'])}.must_raise(ArgumentError)
- 		lambda {@board.values.addr(['a/a','x','z'])}.must_raise(ArgumentError)
+    lambda {@board.values.addr(['a/a','x','z'])}.must_raise(ArgumentError)
+    lambda {@board.values.addr([0,2,2])}.must_raise(ArgumentError)
+    lambda {@board.values.addr([:a,:b,:c])}.must_raise(ArgumentError)
+    lambda {@board.values.addr([Object.new,Object.new,Object.new])}.must_raise(ArgumentError)
   	end
 
  	it "has length" do
@@ -77,6 +80,8 @@ describe Chawk::Vaddr do
     lambda {@vaddr << 10.0}.must_raise(ArgumentError)
     lambda {@vaddr << Object.new}.must_raise(ArgumentError)
  		lambda {@vaddr << nil}.must_raise(ArgumentError)
+    lambda {@vaddr << ["MY",:DOG,:HAS,:FLEAS]}.must_raise(ArgumentError)
+    
  	end
 
  	it "has last()" do

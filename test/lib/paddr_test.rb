@@ -25,6 +25,9 @@ describe Chawk::Paddr do
  		lambda {@board.points.addr(0)}.must_raise(ArgumentError)
  		lambda {@board.points.addr(['/','x','z'])}.must_raise(ArgumentError)
  		lambda {@board.points.addr(['a/a','x','z'])}.must_raise(ArgumentError)
+    lambda {@board.values.addr(['a','x',1])}.must_raise(ArgumentError)
+    lambda {@board.values.addr(['a','x',:x])}.must_raise(ArgumentError)
+    lambda{@board.values.addr ['a','x',Object.new] }.must_raise(ArgumentError)
   	end
 
  	it "has length" do
@@ -107,6 +110,7 @@ describe Chawk::Paddr do
  	it "only accepts integers" do
  		lambda {@paddr << 10.0}.must_raise(ArgumentError)
  		lambda {@paddr << nil}.must_raise(ArgumentError)
+    lambda {@paddr << [10.0,:x]}.must_raise(ArgumentError)
  	end
 
  	it "has last()" do

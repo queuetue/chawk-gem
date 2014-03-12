@@ -20,7 +20,6 @@ module Chawk
 
 			unless path.select{|x|x !~ /^\w+$/}.empty?
 				raise ArgumentError
-				self.delete
 			end
 
 			@node = find_or_create_addr(path)
