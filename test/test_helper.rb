@@ -13,8 +13,11 @@ require 'stringio'
 require 'tmpdir'
 require 'minitest/autorun'
 require 'minitest/pride'
+require 'fakeweb'
 
 require_relative '../lib/chawk'
+
+FakeWeb.allow_net_connect = true
 
 ENV['RACK_ENV'] = 'test'
 WORKING_DIRECTORY = Dir.pwd.freeze
