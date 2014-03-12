@@ -40,7 +40,7 @@ module Chawk
 			before :create, :set_timestamp
 
 			property :id, Serial
-			property :value, String
+			property :value, Text
 			property :observed_at, Float
 			property :recorded_at, DateTime
 			belongs_to :value_node

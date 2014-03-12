@@ -38,7 +38,7 @@ module Chawk
 		end
 
 		def _insert(val,ts,options={})
-			DataMapper.logger.debug "#{val} -- #{ts.to_f}"
+			DataMapper.logger.debug "PREINSERT PADDR #{val} -- #{ts.to_f}"
 			@node.points.create(value:val,observed_at:ts.to_f)
 		end
 
@@ -112,6 +112,9 @@ module Chawk
 			@vaddr = vaddr
 			@value = value.value
 			@timestamp = value.observed_at
+		end
+		def to_i
+			@value
 		end
 	end
 

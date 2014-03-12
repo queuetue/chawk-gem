@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'json'
 
 describe Chawk::Vaddr do
  	before do
@@ -56,8 +57,8 @@ describe Chawk::Vaddr do
  		@vaddr.length.must_equal(0)
  	end
 
- 	it "accepts _insert" do
- 		@vaddr._insert(100,Time.now)
+ 	it :accepts__insert do
+ 		@vaddr._insert("SHOCK THE MONKEY",Time.now)
  		@vaddr.length.must_equal(1)
  	end
 
@@ -143,6 +144,22 @@ describe Chawk::Vaddr do
   	@vaddr.since(ts-1000).length.must_equal(4) 
   	@vaddr.since(ts-300).length.must_equal(2) 
 	end
+
+  it "handles serialized data" do
+    serial = (1..100).collect{|x|"X" * (100)}.to_json
+    @vaddr.<< serial
+    last = @vaddr.last
+    ary = JSON.parse(last)
+    ary.length.must_equal 100
+    ary[-1].must_equal ("X" * 100)
+  end
+
+  it :acts_like_a_string do
+    @vaddr.<< "GET DOWN!"
+    last = @vaddr.last
+    last.must_equal ("GET DOWN!")
+  end
+
 
 	# it "does mq" do
 	# 	@board.flush_notification_queue
