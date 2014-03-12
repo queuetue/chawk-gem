@@ -15,7 +15,6 @@ module Chawk
 			@node.values.length
 		end
 
-
 		def <<(args)
 			dt = Time.now
 			if args.is_a?(Array)

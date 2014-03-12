@@ -47,7 +47,8 @@ module Chawk
 		def find_or_create_node(parent,name)
 			#TODO: AUTHENTICATION / PERMISSIONS
 			if parent.nil?
-				node = model.create(name:name)
+				node = model.first(parent:nil,name:name)
+				node = model.create(name:name) if node.nil?
 			else
 				node = parent.children.first(name:name)
 				node ? node : node = parent.children.create(name:name)

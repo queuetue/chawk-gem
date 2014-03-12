@@ -8,6 +8,11 @@ describe Chawk::Vaddr do
    	@vaddr.clear_history!
  	end
 
+  it "has consistent root" do
+      rn = @vaddr.root_node
+      @vaddr.root_node.must_equal rn
+  end
+
  	it "has path" do
   		@vaddr.must_respond_to(:path)
  	end
