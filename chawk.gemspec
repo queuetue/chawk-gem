@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Chawk::VERSION
   spec.authors       = ["Scott Russell"]
   spec.email         = ["queuetue@gmail.com"]
-  spec.summary       = %q{Interface to Chawk Server}
-  spec.description   = %q{Interface to Chawk Server}
+  spec.summary       = %q{Time Series Storage Server}
+  spec.description   = %q{Time Series Storage Server}
   spec.homepage      = ""
   spec.license       = "MIT"
 
@@ -18,23 +18,18 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency "sqlite3", "~> 1.3.9"
-  spec.add_runtime_dependency "dm-sqlite-adapter"
-  spec.add_runtime_dependency "dm-postgres-adapter"
-  spec.add_runtime_dependency "data_mapper"
-  spec.add_runtime_dependency "dm-is-tree"
-  spec.add_runtime_dependency "dm-aggregates"
+  spec.add_runtime_dependency "dm-sqlite-adapter", "1.2.0"
+  spec.add_runtime_dependency "dm-postgres-adapter","1.2.0"
+  spec.add_runtime_dependency "data_mapper", "1.2.0"
+  spec.add_runtime_dependency "dm-is-tree", "1.2.0"
+  spec.add_runtime_dependency "dm-aggregates", "1.2.0"
 
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
-  spec.add_development_dependency('haml', '~> 4.0.4')
-  spec.add_development_dependency('minitest', '~> 5.2.0')
-  spec.add_development_dependency('mocha', '~> 0.14.0')
-  #spec.add_development_dependency('fakeweb', '~> 1.3.0')
-  spec.add_development_dependency('simplecov', '~> 0.8.2')
-  spec.add_development_dependency('rack-test')
-  spec.add_development_dependency('json')
-  spec.add_development_dependency('coveralls')
+  spec.add_development_dependency('minitest', '5.3.0')
+  spec.add_development_dependency('rack-test', "0.6.2")
+  spec.add_development_dependency('json', "1.8.1")
+  spec.add_development_dependency('coveralls', "0.7.0")
 
 
 end
