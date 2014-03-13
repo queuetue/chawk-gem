@@ -5,6 +5,7 @@ module Chawk
 		attr_reader :path, :node
 		def initialize(agent,path)
 			@path = path
+			@agent = agent
 
 			unless path.is_a?(Array)
 				raise ArgumentError
@@ -41,16 +42,45 @@ module Chawk
 			@root_node
 		end
 
+		def public_read=(value,options={})
+
+			value = value ? true : false
+
+			while @node != @root_node
+				@node = @node.parent
+				DataMapper.logger.debug "MAKING #{@node.name} PUBLIC"
+				@node.update(public_read:value)
+			end
+		end
+
 		def find_or_create_node(parent,name)
 			#TODO: AUTHENTICATION / PERMISSIONS
 			if parent.nil?
 				node = Chawk::Models::Node.first(parent:nil,name:name)
 				node = Chawk::Models::Node.create(name:name) if node.nil?
+				return node
 			else
 				node = parent.children.first(name:name)
-				node ? node : node = parent.children.create(name:name)
+				if node
+					if node.public_read
+						DataMapper.logger.debug "NODE IS PUBLIC ACCESSABLE -- #{@agent.name} - #{@agent.id}"
+						return node
+					end
+					rel = node.relations.first(agent:@agent)
+					if (rel && (rel.read || rel.admin))
+						DataMapper.logger.debug "NODE IS ACCESSABLE -- #{@agent.name} - #{@agent.id}"
+						return node
+					else
+						DataMapper.logger.debug "NODE IS INACCESSABLE -- #{@agent.name} - #{@agent.id}"
+						raise SecurityError
+					end
+				else
+					DataMapper.logger.debug "NODE CREATED -- #{@agent.name} -- #{@agent.id}"
+					node = parent.children.create(name:name,public_read:false,public_write:false)
+					node.relations.create(agent:@agent,node:node,admin:true,read:true,write:true)
+					return node
+				end
 			end
-			return node
 		end
 
 		def find_or_create_addr(addr)

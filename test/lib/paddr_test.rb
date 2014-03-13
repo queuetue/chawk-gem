@@ -1,12 +1,12 @@
 require 'test_helper'
 
 describe Chawk::Paddr do
- 	before do
- 		@board = Chawk::Board.new()
-    @agent = Chawk::Models::Agent.create(:name=>"Test User")
-   	@addr = @board.addr(@agent,['a','b'])
-   	@addr.points.clear_history!
- 	end
+  before do
+    @board = Chawk::Board.new()
+    @agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
+    @addr = @board.addr(@agent,['a','b'])
+    @addr.points.clear_history!
+  end
 
  	it "has length" do
   		@addr.points.must_respond_to(:length)
