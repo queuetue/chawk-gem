@@ -1,6 +1,10 @@
 module Chawk
 	class Paddr
-		include Addressable
+
+		def initialize(addr)
+			@addr = addr
+			@node = addr.node
+		end
 
 		def _insert(val,ts,options={})
 			DataMapper.logger.debug "PREINSERT PADDR #{val} -- #{ts.to_f}"
@@ -80,7 +84,12 @@ module Chawk
 	end
 
 	class PPoint
-		include DataPoint
+		attr_reader :paddr, :value, :timestamp
+		def initialize(vaddr, value)
+			@vaddr = vaddr
+			@value = value.value
+			@timestamp = value.observed_at
+		end
 
 		def to_i
 			@value
