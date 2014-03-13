@@ -5,7 +5,7 @@ describe Chawk::Vaddr do
  	before do
 		@board = Chawk::Board.new()
 		@agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
-		@addr = @board.addr(@agent,['a','b'])
+		@addr = @board.addr(@agent,'a/b')
 	   	@addr.values.clear_history!
  	end
 
@@ -53,13 +53,6 @@ describe Chawk::Vaddr do
 		@addr.values << "DDDD"
 		@addr.values << ["MY","DOG","HAS","FLEAS"]
 	end
-
-	it "can be a string" do
-		@addr.values << "X"
-		@addr.values.last.to_s.must_equal "X"
-	end
-
-
 
 	it "only accepts strings" do
 		lambda {@addr.values << 10}.must_raise(ArgumentError)
@@ -131,16 +124,16 @@ describe Chawk::Vaddr do
 		serial = (1..100).collect{|x|"X" * (100)}.to_json
 		@addr.values.<< serial
 		last = @addr.values.last
-		ary = JSON.parse(last)
+		ary = JSON.parse(last.value.to_s)
 		ary.length.must_equal 100
 		ary[-1].must_equal ("X" * 100)
 	end
 
-	it :acts_like_a_string do
-		@addr.values << "GET DOWN!"
-		last = @addr.values.last
-		last.to_s.must_equal ("GET DOWN!")
-	end
+	# it :acts_like_a_string do
+	# 	@addr.values << "GET DOWN!"
+	# 	last = @addr.values.last
+	# 	last.to_s.must_equal ("GET DOWN!")
+	# end
 
 
 	# it "does mq" do

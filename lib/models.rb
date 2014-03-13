@@ -1,5 +1,4 @@
 require 'data_mapper'
-require 'dm-is-tree'
 require 'dm-aggregates'
 module Chawk
 	module Models
@@ -13,10 +12,10 @@ module Chawk
 		        property :id, DataMapper::Property::Serial
 				property :observed_at, DataMapper::Property::Float
 				property :recorded_at, DataMapper::Property::DateTime
-				property :created_by, DataMapper::Property::Integer
 				property :meta, DataMapper::Property::Text
 
 				belongs_to :node
+				belongs_to :agent
 
 				def set_timestamp
 					attribute_set(:recorded_at, DateTime.now )
@@ -66,11 +65,10 @@ module Chawk
 		class Node
 			include DataMapper::Resource
 			property :id, Serial
-			property :name, String
+			property :address, String, length:150
 			property :public_read, Boolean
 			property :public_write, Boolean
 
-			is :tree, :order => :name
 			has n, :points
 			has n, :values
 			has n, :relations

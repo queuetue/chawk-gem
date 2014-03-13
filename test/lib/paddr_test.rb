@@ -4,7 +4,7 @@ describe Chawk::Paddr do
   before do
     @board = Chawk::Board.new()
     @agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
-    @addr = @board.addr(@agent,['a','b'])
+    @addr = @board.addr(@agent,'a/b')
     @addr.points.clear_history!
   end
 
@@ -182,11 +182,11 @@ describe Chawk::Paddr do
   	@addr.points.since(ts-300).length.must_equal(2) 
 	end
 
-  it :acts_like_an_integer do
-    @addr.points << 36878
-    last = @addr.points.last
-    last.to_i.must_equal 36878
-  end
+  # it :acts_like_an_integer do
+  #   @addr.points << 36878
+  #   last = @addr.points.last
+  #   last.to_i.must_equal 36878
+  # end
 
 	# it "does mq" do
 	# 	@board.flush_notification_queue

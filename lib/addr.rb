@@ -2,30 +2,33 @@ require 'vaddr'
 require 'paddr'
 module Chawk
 	class Addr
-		attr_reader :path, :node
+		attr_reader :path, :node, :agent
 		def initialize(agent,path)
 			@path = path
 			@agent = agent
 
-			unless path.is_a?(Array)
+			unless path.is_a?(String)
+				DataMapper.logger.debug "NOT A STRING"
 				raise ArgumentError
 			end
 
-			unless path.reject{|x|x.is_a?(String)}.empty?
-				raise ArgumentError
-			end
-
-			unless path.select{|x|x !~ /^\w+$/}.empty?
+			unless path =~ /^[\w\/\:\\]+$/
+				DataMapper.logger.debug "BAD MATCH"
 				raise ArgumentError
 			end
 
 			@node = find_or_create_addr(path)
 
 			unless @node
+				DataMapper.logger.debug "NOT A NODE"
 				raise ArgumentError
 			end
-
 		end
+
+		def address
+			@path
+		end
+
 
 		def values()
 			Chawk::Vaddr.new(self)
@@ -35,68 +38,38 @@ module Chawk
 			Chawk::Paddr.new(self)
 		end
 
-		def root_node()
-			if @root_node.nil?
-				@root_node = find_or_create_node nil,"ROOT"
-			end
-			@root_node
-		end
-
 		def public_read=(value,options={})
-
 			value = value ? true : false
-
-			while @node != @root_node
-				@node = @node.parent
-				DataMapper.logger.debug "MAKING #{@node.name} PUBLIC"
-				@node.update(public_read:value)
-			end
-		end
-
-		def find_or_create_node(parent,name)
-			#TODO: AUTHENTICATION / PERMISSIONS
-			if parent.nil?
-				node = Chawk::Models::Node.first(parent:nil,name:name)
-				node = Chawk::Models::Node.create(name:name) if node.nil?
-				return node
-			else
-				node = parent.children.first(name:name)
-				if node
-					if node.public_read
-						DataMapper.logger.debug "NODE IS PUBLIC ACCESSABLE -- #{@agent.name} - #{@agent.id}"
-						return node
-					end
-					rel = node.relations.first(agent:@agent)
-					if (rel && (rel.read || rel.admin))
-						DataMapper.logger.debug "NODE IS ACCESSABLE -- #{@agent.name} - #{@agent.id}"
-						return node
-					else
-						DataMapper.logger.debug "NODE IS INACCESSABLE -- #{@agent.name} - #{@agent.id}"
-						raise SecurityError
-					end
-				else
-					DataMapper.logger.debug "NODE CREATED -- #{@agent.name} -- #{@agent.id}"
-					node = parent.children.create(name:name,public_read:false,public_write:false)
-					node.relations.create(agent:@agent,node:node,admin:true,read:true,write:true)
-					return node
-				end
-			end
+			DataMapper.logger.debug "MAKING #{@node.name} PUBLIC"
+			@node.update(public_read:value)
 		end
 
 		def find_or_create_addr(addr)
 			#TODO also accept regex-tested string
-			raise ArgumentError unless addr.is_a?(Array)
-			ary = addr.dup
-			parent = root_node
-			while ary.length > 0
-				level = ary.shift
-				parent = find_or_create_node(parent,level)
+			raise ArgumentError unless addr.is_a?(String)
+			#ary = addr.dup
+
+			node = Chawk::Models::Node.first(address:self.address)
+			if node
+				if node.public_read
+					DataMapper.logger.debug "NODE IS PUBLIC ACCESSABLE -- #{@agent.name} - #{@agent.id}"
+					return node
+				end
+				rel = node.relations.first(agent:@agent)
+				if (rel && (rel.read || rel.admin))
+					DataMapper.logger.debug "NODE IS ACCESSABLE -- #{@agent.name} - #{@agent.id}"
+					return node
+				else
+					DataMapper.logger.debug "NODE IS INACCESSABLE -- #{@agent.name} - #{@agent.id}"
+					raise SecurityError
+				end
+			else
+				DataMapper.logger.debug "NODE CREATED -- #{@agent.name} -- #{@agent.id}"
+				node = Chawk::Models::Node.create(address:self.address) if node.nil?
+				node.relations.create(agent:@agent,node:node,admin:true,read:true,write:true)
+				return node
 			end
-			return parent
 		end
 
-		def address
-			@path.join("/")
-		end
 	end
 end

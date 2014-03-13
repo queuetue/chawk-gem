@@ -42,25 +42,4 @@ module Chawk
 
 	end
 
-	class PPoint
-		attr_reader :paddr, :value, :timestamp
-		def initialize(vaddr, value)
-			@vaddr = vaddr
-			@value = value.value
-			@timestamp = value.observed_at
-		end
-
-		def to_i
-			@value
-		end
-
-		def to_s
-			to_str
-		end
-
-		def to_str
-			@value.to_s
-		end
-	end
-
 end
