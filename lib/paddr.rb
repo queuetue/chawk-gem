@@ -17,29 +17,27 @@ module Chawk
 			Integer
 		end
 
-	  def +(other = 1)
-	  	raise ArgumentError unless other.is_a?(Numeric) && other.integer?
-	  	int = (self.last.value.to_i + other.to_i)
-	  	self << int
-	  end  
+		def +(other = 1)
+			raise ArgumentError unless other.is_a?(Numeric) && other.integer?
+			int = (self.last.value.to_i + other.to_i)
+			self << int
+		end  
 
-	  def -(other = 1)
-	  	raise ArgumentError unless other.is_a?(Numeric) && other.integer?
-	  	int = (self.last.value.to_i - other.to_i)
-	  	self << int
-	  end  
+		def -(other = 1)
+			self + (-other)
+		end  
 
-  	  def length
-	  	coll.length
-	  end
+		  def length
+			coll.length
+		end
 
-	  def max
-	  	coll.max(:value)
-	  end
+		def max
+			coll.max(:value)
+		end
 
-	  def min
-	  	coll.min(:value)
-	  end
+		def min
+			coll.min(:value)
+		end
 
 	end
 
