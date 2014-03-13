@@ -9,9 +9,5 @@ module Chawk
 			Chawk::Vaddr
 		end
 
-		def model
-			Chawk::Models::ValueNode
-		end
-
 	end
 end

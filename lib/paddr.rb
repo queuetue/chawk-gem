@@ -8,7 +8,7 @@ module Chawk
 		end
 
 		def clear_history!
-			Chawk::Models::Point.all(point_node_id:@node.id).destroy
+			Chawk::Models::Point.all(node_id:@node.id).destroy
 		end
 
 		def <<(args)

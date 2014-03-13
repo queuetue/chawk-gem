@@ -8,9 +8,5 @@ module Chawk
 			Chawk::Paddr
 		end
 
-		def model
-			Chawk::Models::PointNode
-		end
-
 	end
 end

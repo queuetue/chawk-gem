@@ -4,13 +4,13 @@ require 'dm-aggregates'
 module Chawk
 	module Models
 
-
-		class PointNode
+		class Node
 			include DataMapper::Resource
 			property :id, Serial
 			property :name, String
 			is :tree, :order => :name
 			has n, :points
+			has n, :values
 		end
 
 		class Point
@@ -21,19 +21,11 @@ module Chawk
 			property :value, Integer
 			property :observed_at, Float
 			property :recorded_at, DateTime
-			belongs_to :point_node
+			belongs_to :node
 
 		    def set_timestamp
 		    	attribute_set(:recorded_at, DateTime.now )
 		    end
-		end
-
-		class ValueNode 
-			include DataMapper::Resource
-			property :id, Serial
-			property :name, String
-			is :tree, :order => :name
-			has n, :values
 		end
 
 		class Value
@@ -44,7 +36,7 @@ module Chawk
 			property :value, Text
 			property :observed_at, Float
 			property :recorded_at, DateTime
-			belongs_to :value_node
+			belongs_to :node
 
 		    def set_timestamp
 		    	attribute_set(:recorded_at, DateTime.now )
