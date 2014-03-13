@@ -24,6 +24,7 @@ module Chawk
 		end  
 
 		def -(other = 1)
+			raise ArgumentError unless other.is_a?(Numeric) && other.integer?
 			self + (-other)
 		end  
 
