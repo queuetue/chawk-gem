@@ -53,12 +53,9 @@ module Chawk
 		def to_i
 			@value
 		end
-		def to_int
-			@value
-		end
 
 		def to_s
-			@value.to_s
+			to_str
 		end
 
 		def to_str

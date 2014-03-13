@@ -3,7 +3,8 @@ require 'test_helper'
 describe Chawk::Paddr do
  	before do
  		@board = Chawk::Board.new()
-   	@addr = @board.addr(['a','b'])
+    @agent = Chawk::Models::Agent.create(:name=>"Test User")
+   	@addr = @board.addr(@agent,['a','b'])
    	@addr.points.clear_history!
  	end
 

@@ -4,7 +4,7 @@ require 'dm-aggregates'
 module Chawk
 	module Models
 
-		module DataPoint
+		module Datum
 		    def self.included(base)
 		      base.class_eval do
 		        include DataMapper::Resource
@@ -13,6 +13,9 @@ module Chawk
 		        property :id, DataMapper::Property::Serial
 				property :observed_at, DataMapper::Property::Float
 				property :recorded_at, DataMapper::Property::DateTime
+				property :created_by, DataMapper::Property::Integer
+				property :meta, DataMapper::Property::Text
+
 				belongs_to :node
 
 				def set_timestamp
@@ -24,22 +27,62 @@ module Chawk
 
 		end
 
+		class Agent
+			include DataMapper::Resource
+			property :id, Serial
+			property :foreign_id, Integer
+			property :name, String, length:200
+			has n, :tags
+			has n, :agent_tags
+			has n, :relations
+		end
+
+		class Relation
+			include DataMapper::Resource
+			property :id, Serial
+			property :admin, Boolean
+			property :read, Boolean
+			property :write, Boolean
+			belongs_to :agent
+			belongs_to :node
+		end
+
+		class AgentTag
+			include DataMapper::Resource
+			property :id, Serial
+			property :name, String, length:100
+			property :description, Text
+			property :managed, Boolean
+			belongs_to :agent
+		end
+
+		class Tag
+			include DataMapper::Resource
+			property :description, Text
+			property :id, Serial
+			property :name, String, length:100
+		end
+
 		class Node
 			include DataMapper::Resource
 			property :id, Serial
 			property :name, String
+			property :public_read, Boolean
+			property :public_write, Boolean
+
 			is :tree, :order => :name
 			has n, :points
 			has n, :values
+			has n, :relations
 		end
 
 		class Point
-			include Chawk::Models::DataPoint
+			include Chawk::Models::Datum
 			property :value, Integer
 		end
 
 		class Value
-			include Chawk::Models::DataPoint
+			include Chawk::Models::Datum
 			property :value, Text
 		end
 	end

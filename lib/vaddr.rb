@@ -27,7 +27,7 @@ module Chawk
 		end
 
 		def to_s
-			@value
+			to_str
 		end
 		def to_str
 			@value

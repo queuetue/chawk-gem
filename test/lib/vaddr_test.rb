@@ -4,8 +4,9 @@
 describe Chawk::Vaddr do
  	before do
  		@board = Chawk::Board.new()
-   	@addr = @board.addr(['a','b'])
-   	@addr.values.clear_history!
+	    @agent = Chawk::Models::Agent.create(:name=>"Test User")
+	   	@addr = @board.addr(@agent,['a','b'])
+	   	@addr.values.clear_history!
  	end
 
  	it "has length" do
@@ -52,6 +53,13 @@ describe Chawk::Vaddr do
 		@addr.values << "DDDD"
 		@addr.values << ["MY","DOG","HAS","FLEAS"]
 	end
+
+	it "can be a string" do
+		@addr.values << "X"
+		@addr.values.last.to_s.must_equal "X"
+	end
+
+
 
 	it "only accepts strings" do
 		lambda {@addr.values << 10}.must_raise(ArgumentError)

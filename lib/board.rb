@@ -7,8 +7,8 @@ module Chawk
 		def initialize
 		end
 
-		def addr(path)
-			Chawk::Addr.new(path)
+		def addr(agent,path)
+			Chawk::Addr.new(agent,path)
 		end
 
 	end

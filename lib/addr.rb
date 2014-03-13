@@ -3,7 +3,7 @@ require 'paddr'
 module Chawk
 	class Addr
 		attr_reader :path, :node
-		def initialize(path)
+		def initialize(agent,path)
 			@path = path
 
 			unless path.is_a?(Array)
