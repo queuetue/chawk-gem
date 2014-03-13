@@ -1,38 +1,20 @@
+require 'store'
+
 module Chawk
 	class Paddr
 
-		def initialize(addr)
-			@addr = addr
-			@node = addr.node
+		include Chawk::Store
+
+		def model
+			Chawk::Models::Point
 		end
 
-		def _insert(val,ts,options={})
-			DataMapper.logger.debug "PREINSERT PADDR #{val} -- #{ts.to_f}"
-			@node.points.create(value:val,observed_at:ts.to_f)
+		def coll
+			@node.points
 		end
 
-		def clear_history!
-			Chawk::Models::Point.all(node_id:@node.id).destroy
-		end
-
-		def <<(args)
-			dt = Time.now
-			if args.is_a?(Array)
-				args.each do |arg|
-					if arg.is_a?(Integer)
-						self._insert(arg,dt)
-					else
-						raise ArgumentError
-					end
-				end
-			else
-				if args.is_a?(Integer)
-					_insert(args,dt)
-				else
-					raise ArgumentError
-				end
-			end
-			self.last
+		def stored_type
+			Integer
 		end
 
 	  def +(other = 1)
@@ -47,38 +29,16 @@ module Chawk
 	  	self << int
 	  end  
 
-	  def last(count=1)
-	  	if count == 1
-	  		if @node.points.length > 0
-		  		PPoint.new(self, @node.points.last)
-		  	else
-		  		nil
-		  	end
-		else
-			vals = @node.points.all(limit:count,order:[:observed_at.asc, :id.asc])
-			last_items = vals.each.collect{|val|PPoint.new(self, val)}
-		end
-	  end
-
   	  def length
-	  	@node.points.length
+	  	coll.length
 	  end
 
 	  def max
-	  	@node.points.max(:value)
+	  	coll.max(:value)
 	  end
 
 	  def min
-	  	@node.points.min(:value)
-	  end
-
-	  def range(dt_from, dt_to,options={})
-		vals = @node.points.all(:observed_at.gte => dt_from, :observed_at.lte =>dt_to, limit:1000,order:[:observed_at.asc, :id.asc])
-		vals.each.collect{|val|PPoint.new(self, @node.points.last)} unless vals.nil?
-	  end
-
-	  def since(dt_from)
-	  	self.range(dt_from,Time.now)
+	  	coll.min(:value)
 	  end
 
 	end
@@ -97,8 +57,14 @@ module Chawk
 		def to_int
 			@value
 		end
+
+		def to_s
+			@value.to_s
+		end
+
+		def to_str
+			@value.to_s
+		end
 	end
 
-	class PRange
-	end
 end
