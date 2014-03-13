@@ -44,25 +44,28 @@ module Chawk
 			@node.update(public_read:value)
 		end
 
+		def check_node_security(node)
+			if node.public_read
+				DataMapper.logger.debug "NODE IS PUBLIC ACCESSABLE -- #{@agent.name} - #{@agent.id}"
+				return node
+			end
+			rel = node.relations.first(agent:@agent)
+			if (rel && (rel.read || rel.admin))
+				DataMapper.logger.debug "NODE IS ACCESSABLE -- #{@agent.name} - #{@agent.id}"
+			return node
+			else
+				DataMapper.logger.debug "NODE IS INACCESSABLE -- #{@agent.name} - #{@agent.id}"
+				raise SecurityError
+			end
+		end
+
 		def find_or_create_addr(addr)
 			#TODO also accept regex-tested string
 			raise ArgumentError unless addr.is_a?(String)
-			#ary = addr.dup
 
 			node = Chawk::Models::Node.first(address:self.address)
 			if node
-				if node.public_read
-					DataMapper.logger.debug "NODE IS PUBLIC ACCESSABLE -- #{@agent.name} - #{@agent.id}"
-					return node
-				end
-				rel = node.relations.first(agent:@agent)
-				if (rel && (rel.read || rel.admin))
-					DataMapper.logger.debug "NODE IS ACCESSABLE -- #{@agent.name} - #{@agent.id}"
-					return node
-				else
-					DataMapper.logger.debug "NODE IS INACCESSABLE -- #{@agent.name} - #{@agent.id}"
-					raise SecurityError
-				end
+				node = check_node_security(node)
 			else
 				DataMapper.logger.debug "NODE CREATED -- #{@agent.name} -- #{@agent.id}"
 				node = Chawk::Models::Node.create(address:self.address) if node.nil?
