@@ -51,16 +51,68 @@ The first time using a new database (Like this sqlite memory one that is destroy
 
 All Chawk data operations require an Agent.  This can be used as the main actor in your code, or can be a proxy for your own User, etc through the foreign_id property.
 
-    agent = Chawk::Models::Agent.first(name:"Steve Austin" || Chawk::Models::Agent.new(name:"Steve Austin")
+    agent = Chawk::Models::Agent.first(name:"Steve Austin") || Chawk::Models::Agent.new(name:"Steve Austin")
 
 All data operations are performed through an Addr object.
 
-    addr = @board.addr(agent,"inventory/popcorn")
+    addr = Chawk.addr(agent,"inventory/popcorn")
 
-The Addr object has two store objects - values and points.  **Points** are integers and allow mathematical and statistical operations. **Values** are strings and are intended for storing informational or serialized time series data. 
+The Addr object has two store objects - values and points.  **Points** are integers and allow mathematical and statistical operations. **Values** are strings and are intended for storing informational or serialized time series data.:
 
     addr.values << "This is a test."
-    addr.last
+    addr.values.last
+    =>  #<Chawk::Models::Value @id=...
+    		@observed_at=... 
+			@recorded_at=#<DateTime: ...> 
+			@meta=nil 
+			@value="This is a test." 
+			@node_id=... 
+			@agent_id=...>
+
+	addr.values << ["AND","SO","IS","THIS"]
+    addr.values.last
+	 => #<Chawk::Models::Value ... @value="THIS">
+	addr.values.last(10)
+	=> [#<Chawk::Models::Value ... @value="This is a test.">, 
+		#<Chawk::Models::Value ... @value="AND">, 
+		#<Chawk::Models::Value ... @value="SO">, 
+		#<Chawk::Models::Value ... @value="IS">, 
+		#<Chawk::Models::Value ... @value="THIS">]
+
+Addr can also return ranges from the past using the range method or the last method:
+
+	addr.values.range(Time.now-2000,Time.now-1000)
+	=> [#<Chawk::Models::Value ... @value="ROCK">, 
+		#<Chawk::Models::Value ... @value="AROUND">]
+
+	addr.values.since(Time.now-1000)
+	=> [#<Chawk::Models::Value ... @value="THE.">, 
+		#<Chawk::Models::Value ... @value="CLOCK">]
+
+These same methods also work for points:
+
+	addr.points << [10,9,8,7,6,5]
+	addr.points.last
+	=> #<Chawk::Models::Point ... @value=5>
+	addr.points.last(2)
+	=> [#<Chawk::Models::Point ... @value=6>, #<Chawk::Models::Point ... @value=5>]
+
+Points can also use the increment and decrement operators
+
+	addr.points.last
+	=> #<Chawk::Models::Point ... @value=5>
+	addr.points + 10
+	addr.pointslast
+	=> #<Chawk::Models::Point ... @value=15>
+
+As well as max and min
+
+	addr.points.max
+	=> 15
+	addr + 10
+	addr.points.last
+	=> 1
+
 
 ## Contributing
 
@@ -69,3 +121,28 @@ The Addr object has two store objects - values and points.  **Points** are integ
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## License
+
+Copyright (c) 2014 Scott Russell (queuetue@gmail.com / queuetue.com)
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
