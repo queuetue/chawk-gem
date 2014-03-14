@@ -1,4 +1,4 @@
-<img src="https://rawgithub.com/queuetue/chawk-gem/master/lib/chawk/Jackdaw.svg" alt="Drawing" style="width: 250px;"/>
+<img src="https://rawgithub.com/queuetue/chawk-gem/master/lib/chawk/Jackdaw.svg" alt="Drawing" width="350px"/>
 
 
 [![Gem Version](https://badge.fury.io/rb/chawk.png)](http://badge.fury.io/rb/chawk)
