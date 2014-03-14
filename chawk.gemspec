@@ -29,7 +29,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('minitest', '5.3.0')
   spec.add_development_dependency('rack-test', "0.6.2")
   spec.add_development_dependency('json', "1.8.1")
-  spec.add_development_dependency('coveralls', "0.7.0")
-  spec.add_development_dependency('fakeweb')
 
 end

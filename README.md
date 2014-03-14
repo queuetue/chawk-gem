@@ -1,17 +1,16 @@
 # Chawk
 
-[![Gem Version][GV img]][Gem Version]
+
+[![Gem Version](https://badge.fury.io/rb/chawk.png)](http://badge.fury.io/rb/chawk)
 [![Build Status][BS img]][Build Status]
 [![Dependency Status][DS img]][Dependency Status]
 [![Code Climate][CC img]][Code Climate]
 
-[Gem Version]: https://rubygems.org/gems/chawk
 [Build Status]: https://travis-ci.org/queuetue/chawk-gem
 [travis pull requests]: https://travis-ci.org/queuetue/chawk-gem/pull_requests
 [Dependency Status]: https://gemnasium.com/queuetue/chawk-gem
 [Code Climate]: https://codeclimate.com/github/queuetue/chawk-gem
 
-[GV img]: https://badge.fury.io/rb/chawk-gem.png
 [BS img]: https://travis-ci.org/queuetue/chawk-gem.png
 [DS img]: https://gemnasium.com/queuetue/chawk-gem.png
 [CC img]: https://codeclimate.com/github/queuetue/chawk-gem.png
