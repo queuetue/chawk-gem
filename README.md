@@ -45,7 +45,7 @@ Setup
     require 'chawk'
     Chawk.setup 'sqlite::memory:'
 
-The first time using a new database (Like this sqlite memory one that is destroyed at program exit) you should call 
+DO NOT DO THIS ON AN EXISTING DATABASE, but the first time using a new database (Like this sqlite memory one that is destroyed at program exit) you should call: 
 
     DataMapper.auto_upgrade!
 
