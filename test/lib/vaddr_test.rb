@@ -3,9 +3,9 @@
 
 describe Chawk::Vaddr do
  	before do
-		@board = Chawk::Board.new()
+		#@board = Chawk::Board.new()
 		@agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
-		@addr = @board.addr(@agent,'a/b')
+		@addr = Chawk.addr(@agent,'a/b')
 	   	@addr.values.clear_history!
  	end
 

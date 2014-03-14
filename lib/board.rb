@@ -4,7 +4,9 @@ require 'addr'
 module Chawk
 	class Board
 		attr_reader :points, :values
-		def initialize
+		def initialize()
+			#DataMapper.setup(:defalut, database_url)
+			#DataMapper.finalize
 		end
 
 		def clear_all_data!

@@ -3,10 +3,9 @@ require 'json'
 
 describe Chawk::Addr do
   before do
-    @board = Chawk::Board.new()
-    @board.clear_all_data!
+    Chawk.clear_all_data!
     @agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
-    @addr = @board.addr(@agent,'a/b')
+    @addr = Chawk.addr(@agent,'a/b')
   end
 
   it "has path" do
@@ -19,33 +18,32 @@ describe Chawk::Addr do
 
   it "address is a/b" do
     @addr.address.must_equal("a/b")
-    @board.addr(@agent,'a/b').address.must_equal("a/b")
-    @board.addr(@agent,'0/x/z').address.must_equal("0/x/z")
+    Chawk.addr(@agent,'a/b').address.must_equal("a/b")
+    Chawk.addr(@agent,'0/x/z').address.must_equal("0/x/z")
   end
 
   it "rejects invalid paths" do
-    lambda {@board.addr(@agent,['A'])}.must_raise(ArgumentError)
-    lambda {@board.addr(@agent,0)}.must_raise(ArgumentError)
-    #lambda {@board.addr(@agent,"a\na")}.must_raise(ArgumentError)
-    lambda {@board.addr(@agent,:a)}.must_raise(ArgumentError)
-    lambda {@board.addr(@agent,Object.new)}.must_raise(ArgumentError)
-    lambda {@board.addr(@agent,String.new)}.must_raise(ArgumentError)
-    lambda {@board.addr(@agent,"")}.must_raise(ArgumentError)
+    lambda {Chawk.addr(@agent,['A'])}.must_raise(ArgumentError)
+    lambda {Chawk.addr(@agent,0)}.must_raise(ArgumentError)
+    lambda {Chawk.addr(@agent,:a)}.must_raise(ArgumentError)
+    lambda {Chawk.addr(@agent,Object.new)}.must_raise(ArgumentError)
+    lambda {Chawk.addr(@agent,String.new)}.must_raise(ArgumentError)
+    lambda {Chawk.addr(@agent,"")}.must_raise(ArgumentError)
   end
 
   it "stops unauthorized access" do
     agent2 = Chawk::Models::Agent.first(name:"Steve Austin") || Chawk::Models::Agent.create(name:"Steve Austin")
-    lambda{@addr = @board.addr(agent2,'a/b')}.must_raise SecurityError
+    lambda{@addr = Chawk.addr(agent2,'a/b')}.must_raise SecurityError
     @addr.public_read=true
-    @board.addr(agent2,'a/b').address.must_equal "a/b"
+    Chawk.addr(agent2,'a/b').address.must_equal "a/b"
     @addr.public_read=false
-    lambda{@addr = @board.addr(agent2,'a/b')}.must_raise SecurityError
+    lambda{@addr = Chawk.addr(agent2,'a/b')}.must_raise SecurityError
     @addr.set_permissions(agent2,true,false,false)
-    @board.addr(agent2,'a/b').address.must_equal "a/b"
+    Chawk.addr(agent2,'a/b').address.must_equal "a/b"
     @addr.set_permissions(agent2,false,false,false)
-    lambda{@addr = @board.addr(agent2,'a/b')}.must_raise SecurityError
+    lambda{@addr = Chawk.addr(agent2,'a/b')}.must_raise SecurityError
     @addr.set_permissions(agent2,false,false,true)
-    @board.addr(agent2,'a/b').address.must_equal "a/b"
+    Chawk.addr(agent2,'a/b').address.must_equal "a/b"
   end
 
 end

@@ -38,9 +38,22 @@ Or install it yourself as:
 
     $ gem install chawk
 
-## Usage
+## Using Chawk
 
-Setup is a bit of a bear at the moment, expect usage details to follow.
+Setup
+    require 'chawk'
+    Chawk.setup 'sqlite::memory:'
+    @board = Chawk::Board.new()
+
+All Chawk data operations require an Agent.  This can be used as the main actor in your code, or can be a proxy for your own User, etc through the foreign_id property.
+
+    agent = Chawk::Models::Agent.new(name:"Steve Austin")
+
+All data operations are performed through an Addr object.
+
+    addr = @board.addr(agent,"inventory/popcorn")
+
+The Addr object has two store objects - values and points.  **Points** are integers and allow mathematical and statistical operations. **Values** are strings and are intended for storing informational or serialized time series data. 
 
 ## Contributing
 

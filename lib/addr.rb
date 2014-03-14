@@ -8,19 +8,19 @@ module Chawk
 			@agent = agent
 
 			unless path.is_a?(String)
-				DataMapper.logger.debug "NOT A STRING"
+				#DataMapper.logger.debug "NOT A STRING"
 				raise ArgumentError
 			end
 
 			unless path =~ /^[\w\/\:\\]+$/
-				DataMapper.logger.debug "BAD MATCH"
+				#DataMapper.logger.debug "BAD MATCH"
 				raise ArgumentError
 			end
 
 			@node = find_or_create_addr(path)
 
 			unless @node
-				DataMapper.logger.debug "NOT A NODE"
+				#DataMapper.logger.debug "NOT A NODE"
 				raise ArgumentError
 			end
 		end
@@ -40,16 +40,16 @@ module Chawk
 
 		def public_read=(value,options={})
 			value = value ? true : false
-			DataMapper.logger.debug "MAKING #{@node.address} PUBLIC (#{value})"
+			#DataMapper.logger.debug "MAKING #{@node.address} PUBLIC (#{value})"
 			@node.update(public_read:value)
 		end
 
 		def set_permissions(agent,read=false,write=false,admin=false)
-			DataMapper.logger.debug "REVOKING #{@node.address} / #{@agent.name} "
+			#DataMapper.logger.debug "REVOKING #{@node.address} / #{@agent.name} "
 			@node.relations.all(agent:agent).destroy()
 			if read || write || admin
 				vals = {agent:agent,read:(read ? true : false),write:(write ? true : false),admin:(admin ? true : false)}
-				DataMapper.logger.debug "SET PERMISSIONS #{@node.address} / #{vals} "
+				#DataMapper.logger.debug "SET PERMISSIONS #{@node.address} / #{vals} "
 				@node.relations.create(vals)
 			end
 			nil
@@ -57,15 +57,15 @@ module Chawk
 
 		def check_node_security(node)
 			if node.public_read
-				DataMapper.logger.debug "NODE IS PUBLIC ACCESSABLE -- #{@agent.name} - #{@agent.id}"
+				#DataMapper.logger.debug "NODE IS PUBLIC ACCESSABLE -- #{@agent.name} - #{@agent.id}"
 				return node
 			end
 			rel = node.relations.first(agent:@agent)
 			if (rel && (rel.read || rel.admin))
-				DataMapper.logger.debug "NODE IS ACCESSABLE -- #{@agent.name} - #{@agent.id}"
+				#DataMapper.logger.debug "NODE IS ACCESSABLE -- #{@agent.name} - #{@agent.id}"
 			return node
 			else
-				DataMapper.logger.debug "NODE IS INACCESSABLE -- #{@agent.name} - #{@agent.id}"
+				#DataMapper.logger.debug "NODE IS INACCESSABLE -- #{@agent.name} - #{@agent.id}"
 				raise SecurityError
 			end
 		end
@@ -78,7 +78,7 @@ module Chawk
 			if node
 				node = check_node_security(node)
 			else
-				DataMapper.logger.debug "NODE CREATED -- #{@agent.name} -- #{@agent.id}"
+				#DataMapper.logger.debug "NODE CREATED -- #{@agent.name} -- #{@agent.id}"
 				node = Chawk::Models::Node.create(address:self.address) if node.nil?
 				node.relations.create(agent:@agent,node:node,admin:true,read:true,write:true)
 				return node
