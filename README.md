@@ -41,19 +41,26 @@ Or install it yourself as:
 ## Using Chawk
 
 Setup
+
     require 'chawk'
     Chawk.setup 'sqlite::memory:'
-    @board = Chawk::Board.new()
+
+The first time using a new database (Like this sqlite memory one that is destroyed at program exit) you should call 
+
+    DataMapper.auto_upgrade!
 
 All Chawk data operations require an Agent.  This can be used as the main actor in your code, or can be a proxy for your own User, etc through the foreign_id property.
 
-    agent = Chawk::Models::Agent.new(name:"Steve Austin")
+    agent = Chawk::Models::Agent.first(name:"Steve Austin" || Chawk::Models::Agent.new(name:"Steve Austin")
 
 All data operations are performed through an Addr object.
 
     addr = @board.addr(agent,"inventory/popcorn")
 
 The Addr object has two store objects - values and points.  **Points** are integers and allow mathematical and statistical operations. **Values** are strings and are intended for storing informational or serialized time series data. 
+
+    addr.values << "This is a test."
+    addr.last
 
 ## Contributing
 

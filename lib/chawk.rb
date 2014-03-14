@@ -2,8 +2,8 @@ require "chawk/version"
 require 'data_mapper'
 require 'dm-is-tree'
 require 'quantizer'
-require 'board'
-
+require 'models'
+require 'addr'
 
 module Chawk
 
