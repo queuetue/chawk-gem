@@ -40,8 +40,19 @@ module Chawk
 
 		def public_read=(value,options={})
 			value = value ? true : false
-			DataMapper.logger.debug "MAKING #{@node.name} PUBLIC"
+			DataMapper.logger.debug "MAKING #{@node.address} PUBLIC (#{value})"
 			@node.update(public_read:value)
+		end
+
+		def set_permissions(agent,read=false,write=false,admin=false)
+			DataMapper.logger.debug "REVOKING #{@node.address} / #{@agent.name} "
+			@node.relations.all(agent:agent).destroy()
+			if read || write || admin
+				vals = {agent:agent,read:(read ? true : false),write:(write ? true : false),admin:(admin ? true : false)}
+				DataMapper.logger.debug "SET PERMISSIONS #{@node.address} / #{vals} "
+				@node.relations.create(vals)
+			end
+			nil
 		end
 
 		def check_node_security(node)

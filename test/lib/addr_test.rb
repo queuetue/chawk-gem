@@ -4,6 +4,7 @@ require 'json'
 describe Chawk::Addr do
   before do
     @board = Chawk::Board.new()
+    @board.clear_all_data!
     @agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
     @addr = @board.addr(@agent,'a/b')
   end
@@ -33,8 +34,18 @@ describe Chawk::Addr do
   end
 
   it "stops unauthorized access" do
-    @agent2 = Chawk::Models::Agent.create(name:"Steve Austin")
-    lambda{@addr = @board.addr(@agent2,'a/b')}.must_raise SecurityError
+    agent2 = Chawk::Models::Agent.first(name:"Steve Austin") || Chawk::Models::Agent.create(name:"Steve Austin")
+    lambda{@addr = @board.addr(agent2,'a/b')}.must_raise SecurityError
+    @addr.public_read=true
+    @board.addr(agent2,'a/b').address.must_equal "a/b"
+    @addr.public_read=false
+    lambda{@addr = @board.addr(agent2,'a/b')}.must_raise SecurityError
+    @addr.set_permissions(agent2,true,false,false)
+    @board.addr(agent2,'a/b').address.must_equal "a/b"
+    @addr.set_permissions(agent2,false,false,false)
+    lambda{@addr = @board.addr(agent2,'a/b')}.must_raise SecurityError
+    @addr.set_permissions(agent2,false,false,true)
+    @board.addr(agent2,'a/b').address.must_equal "a/b"
   end
 
 end

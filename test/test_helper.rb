@@ -26,7 +26,9 @@ DataMapper::Model.raise_on_save_failure = true
 
 DataMapper.logger.debug "Here we go!"
 
-adapter = DataMapper.setup(:default, 'sqlite::memory:')
+test_db_url = ENV["DATABASE_URL"] || 'sqlite::memory:'
+
+adapter = DataMapper.setup(:default, test_db_url)
 #adapter = DataMapper.setup(:default, 'sqlite:///tmp/project.db')
 DataMapper.finalize
 DataMapper.auto_upgrade!

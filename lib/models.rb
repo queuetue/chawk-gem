@@ -39,9 +39,9 @@ module Chawk
 		class Relation
 			include DataMapper::Resource
 			property :id, Serial
-			property :admin, Boolean
-			property :read, Boolean
-			property :write, Boolean
+			property :admin, Boolean, default:false
+			property :read, Boolean, default:false
+			property :write, Boolean, default:false
 			belongs_to :agent
 			belongs_to :node
 		end
@@ -51,7 +51,7 @@ module Chawk
 			property :id, Serial
 			property :name, String, length:100
 			property :description, Text
-			property :managed, Boolean
+			property :managed, Boolean, default:false
 			belongs_to :agent
 		end
 
@@ -66,8 +66,8 @@ module Chawk
 			include DataMapper::Resource
 			property :id, Serial
 			property :address, String, length:150
-			property :public_read, Boolean
-			property :public_write, Boolean
+			property :public_read, Boolean, default:false
+			property :public_write, Boolean, default:false
 
 			has n, :points
 			has n, :values
