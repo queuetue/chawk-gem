@@ -21,7 +21,10 @@ Chawk is a database agnostic time-series database written in Ruby.
 
 It tracks both both points (Integers) and values (String) in seperate datastores, and will eventually provide statistical and aggregate tools for numeric data.
 
-This is the gem that powers the server, [chawk-server](http://github.com/queuetue/chawk-server "chawk-server") 
+This is the gem that powers the soon-to-be server, chawk-server
+
+Docs at [Queuetue.com](http://queuetue.com/Chawk "queuetue.com")
+
 
 ## Installation
 

@@ -1,3 +1,4 @@
 module Chawk
-  VERSION = "0.1.10"
+	# The current version of Chawk
+	VERSION = "0.1.10"
 end

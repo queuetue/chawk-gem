@@ -1,5 +1,7 @@
 module Chawk
+	# This is not implimented yet.
 	module Quantizer
+		# This is not implimented yet.
 		def starting_step(x,step_width)
 			if (x % step_width) == 0
 				step = x
@@ -8,6 +10,7 @@ module Chawk
 			end
 		end
 
+		# This is not implimented yet.
 		def ending_step(x,step_width)
 			if (x % step_width) == 0
 				step = x
@@ -16,6 +19,7 @@ module Chawk
 			end
 		end
 
+		# This is not implimented yet.
 		def quantize(ary,step_width,steps=nil)
 			# TODO: Needs lots more testing, then faster implementation
 			# with caching (probaby at data add point)

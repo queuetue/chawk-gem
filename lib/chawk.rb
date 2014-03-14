@@ -5,10 +5,17 @@ require 'quantizer'
 require 'models'
 require 'addr'
 
+# Chawk is a gem for storing and retrieving time seris data.
 module Chawk
 
+	# Has Chawk been setup yet?
 	@@ready = nil
 
+	# @param agent [Chawk::Agent] the agent whose permission will be used for this request 
+	# @param path [String] the string address this addr can be found in the database.
+	# @return [Chawk::Addr]
+	# The primary method for retrieving an Addr.  If a path does not exist, it will be created 
+	# and the current agent will be set as an admin for it.
 	def self.addr(agent,path)
 		if @@ready.nil?
 			raise "Chawk has not been setup yet."
@@ -21,6 +28,7 @@ module Chawk
 		end
 	end
 
+	# Deletes all data in the database.  Very dangerous.  Backup often!
 	def self.clear_all_data!
 		if @@ready.nil?
 			raise "Chawk has not been setup yet."
@@ -36,6 +44,8 @@ module Chawk
 	end
 
 
+	# @param database_url [String]
+	# Startup routine for Chawk, requires a database URL in DataMapper's standard format.
 	def self.setup(database_url)
 		@@ready = true
 		adapter = DataMapper.setup(:default, database_url)
