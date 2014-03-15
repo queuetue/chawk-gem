@@ -21,11 +21,16 @@ module Chawk
 			raise "Chawk has not been setup yet."
 		end
 
-		if agent.is_a?(Chawk::Models::Agent) && path.is_a?(String)
-			return Chawk::Addr.new(agent,path)
-		else
-			raise ArgumentError
+		unless agent.is_a?(Chawk::Models::Agent) 
+			raise ArgumentError, 'Agent must be a Chawk::Models::Agent instance'
 		end
+
+		unless path.is_a?(String)
+			raise ArgumentError, 'Path must be a string.'
+		end
+
+		return Chawk::Addr.new(agent,path)
+
 	end
 
 	# Deletes all data in the database.  Very dangerous.  Backup often!

@@ -14,20 +14,17 @@ module Chawk
 			@agent = agent
 
 			unless path.is_a?(String)
-				#DataMapper.logger.debug "NOT A STRING"
-				raise ArgumentError
+				raise 	entError, "Path must be a String."
 			end
 
-			unless path =~ /^[\w\/\:\\]+$/
-				#DataMapper.logger.debug "BAD MATCH"
-				raise ArgumentError
+			unless path =~ /^[\w\:\$\!\@\*\[\]\~\(\)]+$/
+				raise ArgumentError, "Path can only contain [A-Za-z0-9_:$!@*[]~()] (#{path})"
 			end
 
 			@node = find_or_create_addr(path)
 
 			unless @node
-				#DataMapper.logger.debug "NOT A NODE"
-				raise ArgumentError
+				raise ArgumentError,"No node returned."
 			end
 		end
 
@@ -89,13 +86,13 @@ private
 			return node
 			else
 				#DataMapper.logger.debug "NODE IS INACCESSABLE -- #{@agent.name} - #{@agent.id}"
-				raise SecurityError
+				raise SecurityError,"You do not have permission to access this node. #{@agent}"
 			end
 		end
 
 		def find_or_create_addr(addr)
 			#TODO also accept regex-tested string
-			raise ArgumentError unless addr.is_a?(String)
+			raise(ArgumentError,"Path must be a string.") unless addr.is_a?(String)
 
 			node = Chawk::Models::Node.first(address:self.address)
 			if node
