@@ -33,25 +33,43 @@ module Chawk
 			coll.length
 		end
 
+		def insert_recognizer(item, dt, options={})
+			case 
+
+			when item.is_a?(stored_type)
+				_insert item,dt, options
+			when item.is_a?(Array)
+				if item.length == 2 && item[0].is_a?(stored_type) #value, timestamp
+					_insert item[0],item[1], options
+				else
+					raise ArgumentError, "Array Items must be in [value,timestamp] format. #{item.inspect}"
+				end
+			when item.is_a?(Hash)
+				if item['v'] && item['v'].is_a?(stored_type)
+					if item['t']
+						_insert item['v'],item['t'], options
+					else
+						_insert item['v'],dt, options
+					end
+				else
+					raise ArgumentError, "Hash must have 'v' key set to proper type.. #{item.inspect}"
+				end
+			else
+				raise ArgumentError, "Can't recognize format of data item. #{item.inspect}"
+			end
+		end
+
 		# @param args [Object, Array of Objects]
 		# @param options [Hash] You can also pass in :meta and :timestamp 
 		# Add an item or an array of items (one at a time) to the datastore.
 		def <<(args,options={})
-			dt = Time.now
+			options[:observed_at] ? dt = options[:observed_at] : dt = Time.now
 			if args.is_a?(Array)
 				args.each do |arg|
-					if arg.is_a?(stored_type)
-						self._insert(arg,dt,options)
-					else
-						raise ArgumentError
-					end
+					insert_recognizer(arg, dt, options)
 				end
 			else
-				if args.is_a?(stored_type)
-					_insert(args,dt,options)
-				else
-					raise ArgumentError
-				end
+				insert_recognizer(args, dt, options)
 			end
 			self.last
 		end

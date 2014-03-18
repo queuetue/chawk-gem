@@ -47,7 +47,6 @@ module Chawk
 			Chawk::Paddr.new(self)
 		end
 
-
 		# Sets public read flag for this address 
 		# @param value [Boolean] true if public reading is allowed, false if it is not.
 		def public_read=(value)

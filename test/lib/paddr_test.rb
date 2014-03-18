@@ -50,7 +50,12 @@ describe Chawk::Paddr do
  		@addr.points.length.must_equal(2)
  		@addr.points << 190
  		@addr.points << 10002
- 		@addr.points << [10,0,190,100]
+    @addr.points << [10,0,190,100]
+    dt = Time.now.to_f
+    @addr.points << [[10,dt],[0,dt],[190,dt],[100,dt]]
+    @addr.points << [{"v"=>10},{"v"=>0},{"v"=>190},{"v"=>100,"t"=>dt}]
+    @addr.points << [{"v"=>10,"t"=>dt},{"v"=>0,"t"=>dt},{"v"=>190,"t"=>dt},{"v"=>100,"t"=>dt}]
+    @addr.points << [{"t"=>dt,"v"=>10},{"v"=>0,"t"=>dt},{"t"=>dt,"v"=>190},{"v"=>100,"t"=>dt}]
  	end
 
  	it "does +" do
@@ -85,11 +90,24 @@ describe Chawk::Paddr do
  		lambda {@addr.points - nil}.must_raise(ArgumentError)
  	end
 
- 	it "only accepts integers" do
+ 	it "only accepts integers in proper formats" do
  		lambda {@addr.points << 10.0}.must_raise(ArgumentError)
  		lambda {@addr.points << nil}.must_raise(ArgumentError)
     lambda {@addr.points << [10.0,:x]}.must_raise(ArgumentError)
+    lambda {@addr.points << [[10,10,10],[10,10,20]]}.must_raise(ArgumentError)
+    dt = Time.now.to_f
+    lambda {@addr.points << [{"x"=>10,"t"=>dt},{"x"=>0,"t"=>dt}]}.must_raise(ArgumentError)
  	end
+
+  it "does bulk add points" do
+    dt = Time.now.to_f
+    Chawk.bulk_add_points(@agent, {"xxx"=>[1,2,3,4,5,6], "yyy"=>[[10,dt],[10,dt]], "zzz"=>[{"t"=>dt,"v"=>10},{"v"=>0,"t"=>dt}]})
+
+    Chawk.addr(@agent,"xxx").points.length.must_equal 6
+    Chawk.addr(@agent,"zzz").points.length.must_equal 2
+    Chawk.addr(@agent,"zzz").points.last.value.must_equal 0
+
+  end
 
  	it "has last()" do
   		@addr.points.must_respond_to(:last)

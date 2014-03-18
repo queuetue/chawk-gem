@@ -32,6 +32,19 @@ module Chawk
 
 	end
 
+	# @param agent [Chawk::Agent] the agent whose permission will be used for this request 
+	# @param data [Hash] the bulk data to be inserted
+	# Insert data for multiple addresses at once.  Format should be a hash of valid data sets keyed by address 
+	# example: {'key1'=>[1,2,3,4,5],'key2'=>[6,7,8,9]}   
+	def self.bulk_add_points(agent, data)
+		data.keys.each do |key|
+			dset = data[key]
+			daddr = addr(agent,key)
+			daddr.points << dset
+		end
+	end
+
+
 	# Deletes all data in the database.  Very dangerous.  Backup often!
 	def self.clear_all_data!
 		if @@ready.nil?
