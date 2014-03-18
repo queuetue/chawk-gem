@@ -62,7 +62,7 @@ module Chawk
 		# @param args [Object, Array of Objects]
 		# @param options [Hash] You can also pass in :meta and :timestamp 
 		# Add an item or an array of items (one at a time) to the datastore.
-		def <<(args,options={})
+		def append(args,options={})
 			options[:observed_at] ? dt = options[:observed_at] : dt = Time.now
 			if args.is_a?(Array)
 				args.each do |arg|
@@ -72,6 +72,19 @@ module Chawk
 				insert_recognizer(args, dt, options)
 			end
 			self.last
+		end
+
+		def <<(args)
+			append(args)
+			#options[:observed_at] ? dt = options[:observed_at] : dt = Time.now
+			#if args.is_a?(Array)
+			#	args.each do |arg|
+			#		insert_recognizer(arg, dt, options)
+			#	end
+			#else
+			#	insert_recognizer(args, dt, options)
+			#end
+				#self.last
 		end
 
 		# @param count [Integer] returns an array with the last [0..count] items in the datastore.  If set to 1 or left empty, this returns a single item.

@@ -124,6 +124,13 @@ describe Chawk::Paddr do
   		@addr.points.last.value.must_equal(100)
  	end
 
+  it "stores meta information" do
+    @addr.points.append(10,{:meta=>"Some meta_information"})
+    @addr.points.last.value.must_equal(10)
+    @addr.points.last.meta.must_equal("Some meta_information")
+  end
+
+
  	it "returns ordinal last" do
  		@addr.points << [10,9,8,7,6,5,4,3,2,1,0]
   	@addr.points.last(5).length.must_equal(5)
