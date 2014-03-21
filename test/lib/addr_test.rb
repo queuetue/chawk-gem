@@ -8,6 +8,12 @@ describe Chawk do
     @addr = Chawk.addr(@agent,'a:b')
   end
 
+  it "has a good agent" do
+    lambda {@addr = Chawk.addr(nil,'a:b')}.must_raise(ArgumentError)
+    lambda {@addr = Chawk.addr(Object.new,'a:b')}.must_raise(ArgumentError)
+    lambda {@addr = Chawk.addr(Chawk::Models::Agent,'a:b')}.must_raise(ArgumentError)
+  end
+
   it "has key" do
    @addr.must_respond_to(:key)
   end

@@ -3,31 +3,6 @@ module Chawk
 	# Models used in Chawk.  Most are DataMapper classes.
 	module Models
 
-		# Base stored item, imported into other DataMapper classes.
-		# module Datum
-
-		# 	protected
-
-		#     def self.included(base)
-		#       base.class_eval do
-		#         include DataMapper::Resource
-		# 		before :create, :set_timestamp
-
-		#         property :id, DataMapper::Property::Serial
-		# 		property :observed_at, DataMapper::Property::Float
-		# 		property :recorded_at, DataMapper::Property::DateTime
-		# 		property :meta, DataMapper::Property::Text
-
-
-		# 		def set_timestamp
-		# 			attribute_set(:recorded_at, DateTime.now )
-		# 		end
-
-		#       end
-		#     end
-
-		# end
-
 		# Agent DataMapper classes.
 		# Contains a foreign_id for use as a proxy to another table.
 		class Agent < ActiveRecord::Base
@@ -60,13 +35,14 @@ module Chawk
 		# The Node, where most Chawk:Addr information is persisted..
 		class Node < ActiveRecord::Base
 			attr_accessor :agent
+			after_initialize :init
 			self.table_name_prefix = "chawk_"
 			belongs_to :agent
 			has_many :points
 			has_many :values
 			has_many :relations			
 
-			def after_initialize
+			def init
 				@agent = nil
 			end
 
