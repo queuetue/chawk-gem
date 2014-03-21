@@ -27,7 +27,7 @@ if ENV["TEST_DATABASE_URLX"]
 	ActiveRecord::Base.establish_connection ENV["TEST_DATABASE_URL"]
 else
 	ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
-	require "./lib/migration"
+	require "chawk/migration"
 end
 
 
