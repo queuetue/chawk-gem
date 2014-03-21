@@ -8,53 +8,53 @@
 # from scratch. The latter is a flawed and unsustainable approach (the more migrations
 # you'll amass, the slower it'll run and the greater likelihood for issues).
 #
-# It's strongly recommended that you check this file into your version control system.
+# It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(:version => 0) do
 
-  create_table "chawk_agents", force: true do |t|
+  create_table "chawk_agents", :force => true do |t|
     t.integer  "foreign_id"
-    t.string   "name",       limit: 200
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string   "name",       :limit => 200
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
   end
 
-  create_table "chawk_nodes", force: true do |t|
-    t.string  "key",          limit: 150
+  create_table "chawk_nodes", :force => true do |t|
+    t.string  "key",          :limit => 150
     t.text    "decription"
-    t.boolean "public_read",              default: false
-    t.boolean "public_write",             default: false
+    t.boolean "public_read",                 :default => false
+    t.boolean "public_write",                :default => false
   end
 
-  create_table "chawk_points", force: true do |t|
+  create_table "chawk_points", :force => true do |t|
     t.float    "observed_at"
     t.datetime "recorded_at"
     t.text     "meta"
     t.integer  "value"
-    t.integer  "node_id",     null: false
+    t.integer  "node_id",     :null => false
   end
 
-  add_index "chawk_points", ["node_id"], name: "index_chawk_points_node"
+  add_index "chawk_points", ["node_id"], :name => "index_chawk_points_node"
 
-  create_table "chawk_relations", force: true do |t|
-    t.boolean "admin",    default: false
-    t.boolean "read",     default: false
-    t.boolean "write",    default: false
-    t.integer "agent_id",                 null: false
-    t.integer "node_id",                  null: false
+  create_table "chawk_relations", :force => true do |t|
+    t.boolean "admin",    :default => false
+    t.boolean "read",     :default => false
+    t.boolean "write",    :default => false
+    t.integer "agent_id",                    :null => false
+    t.integer "node_id",                     :null => false
   end
 
-  add_index "chawk_relations", ["agent_id"], name: "index_chawk_relations_agent"
-  add_index "chawk_relations", ["node_id"], name: "index_chawk_relations_node"
+  add_index "chawk_relations", ["agent_id"], :name => "index_chawk_relations_agent"
+  add_index "chawk_relations", ["node_id"], :name => "index_chawk_relations_node"
 
-  create_table "chawk_values", force: true do |t|
+  create_table "chawk_values", :force => true do |t|
     t.float    "observed_at"
     t.datetime "recorded_at"
     t.text     "meta"
     t.text     "value"
-    t.integer  "node_id",     null: false
+    t.integer  "node_id",     :null => false
   end
 
-  add_index "chawk_values", ["node_id"], name: "index_chawk_values_node"
+  add_index "chawk_values", ["node_id"], :name => "index_chawk_values_node"
 
 end

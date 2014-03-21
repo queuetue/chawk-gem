@@ -134,7 +134,7 @@ module Chawk
 			# @param write [Boolean] true/false can the agent write this address. (Read acces is required to write.)
 			# @param admin [Boolean] does the agent have ownership/adnim rights for this address. (Read and write are granted if admin is as well.)
 			def set_permissions(agent,read=false,write=false,admin=false)
-				relations.where(agent:agent).destroy_all
+				relations.where(agent_id:agent.id).destroy_all
 				if read || write || admin
 					vals = {agent:agent,read:(read ? true : false),write:(write ? true : false),admin:(admin ? true : false)}
 					relations.create(vals)

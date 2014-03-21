@@ -10,7 +10,7 @@ module Chawk
 			return node
 		end
 
-		rel = node.relations.where(agent:agent).first
+		rel = node.relations.where(agent_id:agent.id).first
 
 		if (rel && (rel.read || rel.admin))
 			return node

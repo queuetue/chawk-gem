@@ -25,9 +25,9 @@ describe Chawk do
  		@addr.points.length.must_equal(7)
  	end
 
- 	it "has destroy_all" do
-  		@addr.points.must_respond_to(:destroy_all)
- 	end
+ 	# it "has destroy_all" do
+  # 		@addr.points.must_respond_to(:destroy_all)
+ 	# end
 
  	it "clears history" do
 	    @addr.add_points [1,2,3,4]

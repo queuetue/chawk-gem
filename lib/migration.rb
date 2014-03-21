@@ -25,6 +25,7 @@
 #ActiveRecord::Base.logger = Logger.new(STDOUT)
 #ActiveRecord::Base.establish_connection ENV["TEST_DATABASE_URL"]
 
+ActiveRecord::Migration.verbose = false
 class CreateChawkBase < ActiveRecord::Migration
 	def up
 		create_table "chawk_agents", force: true do |t|
