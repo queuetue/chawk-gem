@@ -1,7 +1,6 @@
 require "chawk/version"
 require 'quantizer'
 require 'models'
-require 'addr'
 
 # Chawk is a gem for storing and retrieving time seris data.
 module Chawk

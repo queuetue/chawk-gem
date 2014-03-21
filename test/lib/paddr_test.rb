@@ -1,6 +1,6 @@
 require 'test_helper'
 
-describe Chawk::Paddr do
+describe Chawk do
   before do
     #@board = Chawk::Board.new()
     @agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
