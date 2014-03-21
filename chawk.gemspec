@@ -29,5 +29,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('simplecov')
   #spec.add_development_dependency "dm-sqlite-adapter", "1.2.0"
   spec.add_development_dependency('pg')
+  spec.add_development_dependency('sqlite3')
   spec.add_development_dependency('activerecord')
 end

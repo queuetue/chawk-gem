@@ -4,10 +4,6 @@ require 'models'
 
 # Chawk is a gem for storing and retrieving time seris data.
 module Chawk
-
-	# Has Chawk been setup yet?
-	#@@ready = nil
-
 	def self.check_node_security(agent,node)
 
 		if node.public_read
@@ -31,7 +27,6 @@ module Chawk
 		if node
 			node = check_node_security(agent,node)
 		else
-			#DataMapper.logger.debug "NODE CREATED -- #{@agent.name} -- #{@agent.id}"
 			node = Chawk::Models::Node.create(key:key) if node.nil?
 			node.relations.create(agent:agent,node:node,admin:true,read:true,write:true)
 			return node
@@ -82,27 +77,10 @@ module Chawk
 
 	# Deletes all data in the database.  Very dangerous.  Backup often!
 	def self.clear_all_data!
-		#if @@ready.nil?
-		#	raise "Chawk has not been setup yet."
-		#end
-
 		Chawk::Models::Agent.destroy_all
 		Chawk::Models::Relation.destroy_all
 		Chawk::Models::Node.destroy_all
 		Chawk::Models::Point.destroy_all
 		Chawk::Models::Value.destroy_all
-		#Chawk::Models::AgentTag.destroy_all
-		#Chawk::Models::Tag.destroy_all
-	end
-
-
-	# @param database_url [String]
-	# Startup routine for Chawk, requires a database URL in DataMapper's standard format.
-	def self.setup(database_url)
-		#@@ready = true
-		#adapter = DataMapper.setup(:default, database_url)
-		#DataMapper::Model.raise_on_save_failure = true
-		#DataMapper.finalize
-		nil
 	end
 end

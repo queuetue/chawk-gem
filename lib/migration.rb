@@ -21,9 +21,9 @@
 # end
 # add_index "chawk_g_users", ["agent_id"], name: "index_chawk_g_users_agent", using: :btree
 
-require 'active_record'
-ActiveRecord::Base.logger = Logger.new(STDOUT)
-ActiveRecord::Base.establish_connection ENV["TEST_DATABASE_URL"]
+#require 'active_record'
+#ActiveRecord::Base.logger = Logger.new(STDOUT)
+#ActiveRecord::Base.establish_connection ENV["TEST_DATABASE_URL"]
 
 class CreateChawkBase < ActiveRecord::Migration
 	def up
@@ -82,7 +82,7 @@ class CreateChawkBase < ActiveRecord::Migration
 
 end
 
-CreateChawkBase.migrate :down
+#CreateChawkBase.migrate :down
 CreateChawkBase.migrate :up
 
 File.open('./test/schema.rb', "w") do |file|

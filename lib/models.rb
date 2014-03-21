@@ -1,9 +1,8 @@
 require 'active_record'
 module Chawk
-	# Models used in Chawk.  Most are DataMapper classes.
+	# Models used in Chawk.  ActiveRecord classes.
 	module Models
 
-		# Agent DataMapper classes.
 		# Contains a foreign_id for use as a proxy to another table.
 		class Agent < ActiveRecord::Base
 			self.table_name_prefix = "chawk_"
@@ -12,25 +11,12 @@ module Chawk
 			has_many :relations
 		end
 
-		# Agent Relation DataMapper classes, with permission flags.
+		# Agent Relation classes, with permission flags.
 		class Relation < ActiveRecord::Base
 			self.table_name_prefix = "chawk_"
 			belongs_to :agent
 			belongs_to :node
 		end
-
-		# Agent Tags.
-		# Not implimented yet.
-		# class AgentTag < ActiveRecord::Base
-		# 	self.table_name_prefix = "chawk_"
-		# 	belongs_to :agent
-		# end
-
-		# Item Tags.
-		# Not implimented yet.
-		# class Tag < ActiveRecord::Base
-		# 	self.table_name_prefix = "chawk_"
-		# end
 
 		# The Node, where most Chawk:Addr information is persisted..
 		class Node < ActiveRecord::Base
@@ -137,7 +123,6 @@ module Chawk
 			# @param value [Boolean] true if public reading is allowed, false if it is not.
 			def set_public_read(value)
 				value = value ? true : false
-				#DataMapper.logger.debug "MAKING #{@node.address} PUBLIC (#{value})"
 				self.public_read = value
 				save
 			end

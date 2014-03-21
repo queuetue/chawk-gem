@@ -12,9 +12,6 @@
 
 ActiveRecord::Schema.define(version: 0) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
   create_table "chawk_agents", force: true do |t|
     t.integer  "foreign_id"
     t.string   "name",       limit: 200
@@ -37,7 +34,7 @@ ActiveRecord::Schema.define(version: 0) do
     t.integer  "node_id",     null: false
   end
 
-  add_index "chawk_points", ["node_id"], name: "index_chawk_points_node", using: :btree
+  add_index "chawk_points", ["node_id"], name: "index_chawk_points_node"
 
   create_table "chawk_relations", force: true do |t|
     t.boolean "admin",    default: false
@@ -47,8 +44,8 @@ ActiveRecord::Schema.define(version: 0) do
     t.integer "node_id",                  null: false
   end
 
-  add_index "chawk_relations", ["agent_id"], name: "index_chawk_relations_agent", using: :btree
-  add_index "chawk_relations", ["node_id"], name: "index_chawk_relations_node", using: :btree
+  add_index "chawk_relations", ["agent_id"], name: "index_chawk_relations_agent"
+  add_index "chawk_relations", ["node_id"], name: "index_chawk_relations_node"
 
   create_table "chawk_values", force: true do |t|
     t.float    "observed_at"
@@ -58,6 +55,6 @@ ActiveRecord::Schema.define(version: 0) do
     t.integer  "node_id",     null: false
   end
 
-  add_index "chawk_values", ["node_id"], name: "index_chawk_values_node", using: :btree
+  add_index "chawk_values", ["node_id"], name: "index_chawk_values_node"
 
 end
