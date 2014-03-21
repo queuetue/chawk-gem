@@ -198,19 +198,22 @@ describe Chawk do
   		@addr._insert_point(8,ts-200)
   		@addr._insert_point(9,ts-10)
   		@addr._insert_point(10,ts-5)
- 	  	@addr.points_range(ts-1000,ts).length.must_equal 11 
- 	  	@addr.points_range(ts-800,ts).length.must_equal 6 
- 	  	@addr.points_range(ts-200,ts).length.must_equal 3 
-	  	@addr.points_range(ts-10,ts).length.must_equal 2 
-	  	@addr.points_range(ts-5,ts).length.must_equal 1 
-	  	@addr.points_range(ts-200,ts-11).length.must_equal 1 
-	  	@addr.points_range(ts-1000,ts-1000).length.must_equal 5
+ 	  	@addr.points_range(ts-1001,ts).length.must_equal 11 
+ 	  	@addr.points_range(ts-801,ts).length.must_equal 6 
+ 	  	@addr.points_range(ts-201,ts).length.must_equal 3 
+	  	@addr.points_range(ts-11,ts).length.must_equal 2 
+	  	@addr.points_range(ts-6,ts).length.must_equal 1 
+	  	@addr.points_range(ts-201,ts-11).length.must_equal 1 
+	  	@addr.points_range(ts-1001,ts-999).length.must_equal 5
 
- 		@addr._insert_point(0,ts-100)
-	  	@addr.points_range(ts-200,ts).length.must_equal 4 
+   		@addr._insert_point(0,ts-101)
+	  	@addr.points_range(ts-201,ts).length.must_equal 4 
 	end
 
 	it "does since" do
+    @addr.points.destroy_all
+
+
  		ts = Time.now
 
  		@addr._insert_point(0,ts-1000)
@@ -218,8 +221,8 @@ describe Chawk do
  		@addr._insert_point(8,ts-200)
  		@addr._insert_point(10,ts-5)
  		@addr.must_respond_to(:points_since)
-	  	@addr.points_since(ts-1000).length.must_equal(4) 
-	  	@addr.points_since(ts-300).length.must_equal(2) 
+  	@addr.points_since(ts-1001).length.must_equal(4) 
+  	@addr.points_since(ts-301).length.must_equal(2) 
 	end
 
   # it :acts_like_an_integer do
