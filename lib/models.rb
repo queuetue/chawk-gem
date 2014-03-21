@@ -38,27 +38,34 @@ module Chawk
 				self.points.create(values)
 			end
 
+			def _insert_point_hash(item,ts,options)
+				if item['v'] && item['v'].is_a?(Integer)
+					if item['t']
+						_insert_point item['v'],item['t'], options
+					else
+						_insert_point item['v'],ts, options
+					end
+				else
+					raise ArgumentError, "Hash must have 'v' key set to proper type.. #{item.inspect}"
+				end
+			end
+
+			def _insert_point_array(item,options)
+				if item.length == 2 && item[0].is_a?(Integer)
+					_insert_point item[0],item[1], options
+				else
+					raise ArgumentError, "Array Items must be in [value,timestamp] format. #{item.inspect}"
+				end
+			end
+
 			def point_recognizer(item, dt, options={})
 				case 
-
 				when item.is_a?(Integer)
 					_insert_point item,dt, options
 				when item.is_a?(Array)
-					if item.length == 2 && item[0].is_a?(Integer) #value, timestamp
-						_insert_point item[0],item[1], options
-					else
-						raise ArgumentError, "Array Items must be in [value,timestamp] format. #{item.inspect}"
-					end
+					_insert_point_array(item, options)
 				when item.is_a?(Hash)
-					if item['v'] && item['v'].is_a?(Integer)
-						if item['t']
-							_insert_point item['v'],item['t'], options
-						else
-							_insert_point item['v'],dt, options
-						end
-					else
-						raise ArgumentError, "Hash must have 'v' key set to proper type.. #{item.inspect}"
-					end
+					_insert_point_hash(item,dt,options)
 				else
 					raise ArgumentError, "Can't recognize format of data item. #{item.inspect}"
 				end
