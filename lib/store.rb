@@ -17,7 +17,7 @@ module Chawk
 		def _insert(val,ts,options={})
 			#DataMapper.logger.debug "PREINSERT #{val} -- #{ts.to_f}"
 
-			values = {value:val,observed_at:ts.to_f,agent:@addr.agent}
+			values = {value:val,observed_at:ts.to_f}
 			values[:meta] = options[:meta] if options[:meta]
 
 			coll.create(values)
@@ -25,7 +25,13 @@ module Chawk
 
 		# This will clear out all of the data stored at this address for this datastore.  Use with caution.
 		def clear_history!
-			model.all(node_id:@node.id).destroy
+			#@node..destroy_all
+			#puts @node.inspect
+			model.where(["node_id=?", @node.id]).delete_all
+			@node = Chawk::Models::Node.find(@node.id)
+			#model.delete_all(node_id:@node.id)
+			puts "#{@node.inspect} XXX #{@node.points.inspect}"
+
 		end
 
 		# The number of stores data points in this datastore at this address.

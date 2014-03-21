@@ -25,8 +25,8 @@ module Chawk
 			self + (-other)
 		end  
 
-		  def length
-			coll.length
+		def length
+			@node.points.length
 		end
 
 		# @return [Integer] the largest value stored.

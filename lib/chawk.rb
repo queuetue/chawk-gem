@@ -1,5 +1,4 @@
 require "chawk/version"
-require 'data_mapper'
 require 'quantizer'
 require 'models'
 require 'addr'
@@ -8,28 +7,65 @@ require 'addr'
 module Chawk
 
 	# Has Chawk been setup yet?
-	@@ready = nil
+	#@@ready = nil
+
+	def self.check_node_security(agent,node)
+
+		if node.public_read
+			return node
+		end
+
+		rel = node.relations.where(agent:agent).first
+
+		if (rel && (rel.read || rel.admin))
+			return node
+		else
+			raise SecurityError,"You do not have permission to access this node. #{agent} #{rel}"
+		end
+	end
+
+	def self.find_or_create_node(agent,key)
+		#TODO also accept regex-tested string
+		raise(ArgumentError,"Key must be a string.") unless key.is_a?(String)
+
+		node = Chawk::Models::Node.where(key:key).first
+		if node
+			node = check_node_security(agent,node)
+		else
+			#DataMapper.logger.debug "NODE CREATED -- #{@agent.name} -- #{@agent.id}"
+			node = Chawk::Models::Node.create(key:key) if node.nil?
+			node.relations.create(agent:agent,node:node,admin:true,read:true,write:true)
+			return node
+		end
+	end
 
 	# @param agent [Chawk::Agent] the agent whose permission will be used for this request 
-	# @param path [String] the string address this addr can be found in the database.
+	# @param key [String] the string address this addr can be found in the database.
 	# @return [Chawk::Addr]
-	# The primary method for retrieving an Addr.  If a path does not exist, it will be created 
+	# The primary method for retrieving an Addr.  If a key does not exist, it will be created 
 	# and the current agent will be set as an admin for it.
-	def self.addr(agent,path)
-		if @@ready.nil?
-			raise "Chawk has not been setup yet."
+	def self.addr(agent,key)
+
+		unless key =~ /^[\w\:\$\!\@\*\[\]\~\(\)]+$/
+			raise ArgumentError, "Key can only contain [A-Za-z0-9_:$!@*[]~()] (#{key})"
 		end
 
 		unless agent.is_a?(Chawk::Models::Agent) 
 			raise ArgumentError, 'Agent must be a Chawk::Models::Agent instance'
 		end
 
-		unless path.is_a?(String)
-			raise ArgumentError, 'Path must be a string.'
+		unless key.is_a?(String)
+			raise ArgumentError, 'key must be a string.'
 		end
 
-		return Chawk::Addr.new(agent,path)
+		node = find_or_create_node(agent,key)
 
+		unless node
+			raise ArgumentError,"No node was returned."
+		end
+
+		node.agent = agent
+		return node
 	end
 
 	# @param agent [Chawk::Agent] the agent whose permission will be used for this request 
@@ -40,34 +76,34 @@ module Chawk
 		data.keys.each do |key|
 			dset = data[key]
 			daddr = addr(agent,key)
-			daddr.points << dset
+			daddr.add_points dset
 		end
 	end
 
 
 	# Deletes all data in the database.  Very dangerous.  Backup often!
 	def self.clear_all_data!
-		if @@ready.nil?
-			raise "Chawk has not been setup yet."
-		end
+		#if @@ready.nil?
+		#	raise "Chawk has not been setup yet."
+		#end
 
-		Chawk::Models::Agent.all.destroy!
-		Chawk::Models::Relation.all.destroy!
-		Chawk::Models::AgentTag.all.destroy!
-		Chawk::Models::Tag.all.destroy!
-		Chawk::Models::Node.all.destroy!
-		Chawk::Models::Point.all.destroy!
-		Chawk::Models::Value.all.destroy!
+		Chawk::Models::Agent.destroy_all
+		Chawk::Models::Relation.destroy_all
+		Chawk::Models::Node.destroy_all
+		Chawk::Models::Point.destroy_all
+		Chawk::Models::Value.destroy_all
+		#Chawk::Models::AgentTag.destroy_all
+		#Chawk::Models::Tag.destroy_all
 	end
 
 
 	# @param database_url [String]
 	# Startup routine for Chawk, requires a database URL in DataMapper's standard format.
 	def self.setup(database_url)
-		@@ready = true
-		adapter = DataMapper.setup(:default, database_url)
-		DataMapper::Model.raise_on_save_failure = true
-		DataMapper.finalize
+		#@@ready = true
+		#adapter = DataMapper.setup(:default, database_url)
+		#DataMapper::Model.raise_on_save_failure = true
+		#DataMapper.finalize
 		nil
 	end
 end

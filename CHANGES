@@ -1,0 +1,3 @@
+
+-- 0.1.15 --
+Added "append" method and redirected << into it (Apparently, << is magic and won't take 2 parameters)

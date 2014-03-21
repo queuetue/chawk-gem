@@ -8,20 +8,16 @@ describe Chawk::Addr do
     @addr = Chawk.addr(@agent,'a:b')
   end
 
-  it "has path" do
-   @addr.must_respond_to(:path)
+  it "has key" do
+   @addr.must_respond_to(:key)
   end
 
-  it "has address" do
-    @addr.must_respond_to(:address)
-  end
-
-  it "address is valid" do
-    @addr.address.must_equal("a:b")
-    Chawk.addr(@agent,'a:b').address.must_equal("a:b")
-    Chawk.addr(@agent,'0:x:z').address.must_equal("0:x:z")
+  it "key is valid" do
+    @addr.key.must_equal("a:b")
+    Chawk.addr(@agent,'a:b').key.must_equal("a:b")
+    Chawk.addr(@agent,'0:x:z').key.must_equal("0:x:z")
     path = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345689_:$!@*[]~()"
-    Chawk.addr(@agent,path).address.must_equal(path)
+    Chawk.addr(@agent,path).key.must_equal(path)
   end
 
   it "rejects invalid paths" do
@@ -37,19 +33,24 @@ describe Chawk::Addr do
     lambda {Chawk.addr(@agent,"?")}.must_raise(ArgumentError)
   end
 
+  it "sets permissions" do
+    @addr.must_respond_to(:set_public_read)
+    @addr.must_respond_to(:set_permissions)
+  end
+
   it "stops unauthorized access" do
-    agent2 = Chawk::Models::Agent.first(name:"Steve Austin") || Chawk::Models::Agent.create(name:"Steve Austin")
+    agent2 = Chawk::Models::Agent.where("name=?","Steve Austin").first || Chawk::Models::Agent.create(name:"Steve Austin")
     lambda{@addr = Chawk.addr(agent2,'a:b')}.must_raise SecurityError
-    @addr.public_read=true
-    Chawk.addr(agent2,'a:b').address.must_equal "a:b"
-    @addr.public_read=false
+    @addr.set_public_read true
+    Chawk.addr(agent2,'a:b').key.must_equal "a:b"
+    @addr.set_public_read false
     lambda{@addr = Chawk.addr(agent2,'a:b')}.must_raise SecurityError
     @addr.set_permissions(agent2,true,false,false)
-    Chawk.addr(agent2,'a:b').address.must_equal "a:b"
+    Chawk.addr(agent2,'a:b').key.must_equal "a:b"
     @addr.set_permissions(agent2,false,false,false)
     lambda{@addr = Chawk.addr(agent2,'a:b')}.must_raise SecurityError
     @addr.set_permissions(agent2,false,false,true)
-    Chawk.addr(agent2,'a:b').address.must_equal "a:b"
+    Chawk.addr(agent2,'a:b').key.must_equal "a:b"
   end
 
 end

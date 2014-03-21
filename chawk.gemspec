@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   #spec.add_runtime_dependency "dm-postgres-adapter","1.2.0"
-  spec.add_runtime_dependency "data_mapper", "1.2.0"
+  #spec.add_runtime_dependency "data_mapper", "1.2.0"
   
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('rack-test', "0.6.2")
   spec.add_development_dependency('json', "1.8.1")
   spec.add_development_dependency('simplecov')
-  spec.add_development_dependency "dm-sqlite-adapter", "1.2.0"
-
+  #spec.add_development_dependency "dm-sqlite-adapter", "1.2.0"
+  spec.add_development_dependency('pg')
+  spec.add_development_dependency('activerecord')
 end
