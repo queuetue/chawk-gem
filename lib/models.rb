@@ -34,7 +34,13 @@ module Chawk
 
 			def _insert_point(val,ts,options={})
 				values = {value:val,observed_at:ts.to_f}
-				values[:meta] = options[:meta] if options[:meta]
+				if options[:meta]
+					if options[:meta].is_a?(Hash)
+						values[:meta] = options[:meta].to_json
+					else
+						raise ArgumentError, "Meta must be a JSON-representable Hash. #{options[:meta].inspect}"
+					end
+				end
 				self.points.create(values)
 			end
 
@@ -58,6 +64,14 @@ module Chawk
 				end
 			end
 
+			def _insert_point_string(item,ts,options)
+				if item.length > 0 && item =~ /\A[-+]?[0-9]+/
+					_insert_point item.to_i,ts, options
+				else
+					raise ArgumentError, "String Items must represent Integer. #{item.inspect}"
+				end
+			end
+
 			def point_recognizer(item, dt, options={})
 				case 
 				when item.is_a?(Integer)
@@ -66,6 +80,8 @@ module Chawk
 					_insert_point_array(item, options)
 				when item.is_a?(Hash)
 					_insert_point_hash(item,dt,options)
+				when item.is_a?(String)
+					_insert_point_string(item,dt,options)
 				else
 					raise ArgumentError, "Can't recognize format of data item. #{item.inspect}"
 				end

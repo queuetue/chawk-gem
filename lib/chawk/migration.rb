@@ -1,31 +1,5 @@
 ## ~~~- Created via -~~~
 
-# ActiveRecord::Base.establish_connection ENV["TEST_DATABASE_URL"]
-# File.open(schema_file, "w") do |file|
-# 	ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
-# end
-
-# create_table "chawk_g_users", force: true do |t|
-#   t.string  "google_id",    limit: 120
-#   t.string  "google_email", limit: 120
-#   t.string  "email",        limit: 120
-#   t.string  "handle",       limit: 30
-#   t.string  "name",         limit: 40
-#   t.string  "family_name",  limit: 20
-#   t.text    "image"
-#   t.text    "secret"
-#   t.string  "api_key",      limit: 200
-#   t.integer "reset_token"
-#   t.integer "access_token"
-#   t.integer "agent_id"
-# end
-# add_index "chawk_g_users", ["agent_id"], name: "index_chawk_g_users_agent", using: :btree
-
-#require 'active_record'
-#ActiveRecord::Base.logger = Logger.new(STDOUT)
-#ActiveRecord::Base.establish_connection ENV["TEST_DATABASE_URL"]
-
-ActiveRecord::Migration.verbose = false
 class CreateChawkBase < ActiveRecord::Migration
 	def up
 		create_table "chawk_agents", force: true do |t|
@@ -81,12 +55,5 @@ class CreateChawkBase < ActiveRecord::Migration
 		drop_table "chawk_relations"
 	end
 
-end
-
-#CreateChawkBase.migrate :down
-CreateChawkBase.migrate :up
-
-File.open('./test/schema.rb', "w") do |file|
-	ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
 end
 

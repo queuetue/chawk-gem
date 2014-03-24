@@ -27,7 +27,12 @@ if ENV["TEST_DATABASE_URLX"]
 	ActiveRecord::Base.establish_connection ENV["TEST_DATABASE_URL"]
 else
 	ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
+	ActiveRecord::Migration.verbose = false
 	require "chawk/migration"
+	CreateChawkBase.migrate :up
+	File.open('./test/schema.rb', "w") do |file|
+		ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
+	end
 end
 
 

@@ -114,6 +114,18 @@ describe Chawk do
     lambda {@addr.add_points [{"x"=>10,"t"=>dt},{"x"=>0,"t"=>dt}]}.must_raise(ArgumentError)
  	end
 
+  it "accepts string integers in proper formats" do
+    lambda {@addr.add_points "X"}.must_raise(ArgumentError)
+    @addr.add_points "10"
+    @addr.points.length.must_equal(1)
+    @addr.add_points "0"
+    @addr.points.length.must_equal(2)
+    @addr.add_points "190"
+    @addr.add_points "10002"
+    @addr.add_points ["10","0","190","100"]
+    @addr.points.length.must_equal(8)
+  end
+
   it "does bulk add points" do
     dt = Time.now.to_f
     Chawk.bulk_add_points(@agent, {"xxx"=>[1,2,3,4,5,6], "yyy"=>[[10,dt],[10,dt]], "zzz"=>[{"t"=>dt,"v"=>10},{"v"=>0,"t"=>dt}]})
@@ -140,9 +152,17 @@ describe Chawk do
  	end
 
   it "stores meta information" do
-    @addr.add_points(10,{:meta=>"Some meta_information"})
-    @addr.points.last.value.must_equal(10)
-    @addr.points.last.meta.must_equal("Some meta_information")
+
+    metadata = {"info"=>"this is a test"}
+    @addr.add_points([1,2,3,4],{:meta=>metadata})
+    @addr.points.last.value.must_equal(4)
+    JSON.parse(@addr.points.last.meta).must_equal(metadata)
+
+    metadata = {"number"=>123}
+    @addr.add_points([1,2,3,4],{:meta=>metadata})
+    @addr.points.last.value.must_equal(4)
+    JSON.parse(@addr.points.last.meta).must_equal(metadata)
+
   end
 
 

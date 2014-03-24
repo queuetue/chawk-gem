@@ -3,3 +3,7 @@
 Added "append" method and redirected << into it (Apparently, << is magic and won't take 2 parameters)
 -- 0.1.16 --
 Switched to ActiveRecord, removed DataMapper
+-- 0.1.17 --
+Points can now be passed as strings representing integers
+-- 0.1.18 --
+metadata is stored as json (must be passed as a hash)
