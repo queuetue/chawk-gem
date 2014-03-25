@@ -2,26 +2,17 @@
 
 
 [![Gem Version](https://badge.fury.io/rb/chawk.png)](http://badge.fury.io/rb/chawk)
-[![Build Status][BS img]][Build Status]
-[![Dependency Status][DS img]][Dependency Status]
-[![Code Climate][CC img]][Code Climate]
-
-[Build Status]: https://travis-ci.org/queuetue/chawk-gem
-[travis pull requests]: https://travis-ci.org/queuetue/chawk-gem/pull_requests
-[Dependency Status]: https://gemnasium.com/queuetue/chawk-gem
-[Code Climate]: https://codeclimate.com/github/queuetue/chawk-gem
-
-[BS img]: https://travis-ci.org/queuetue/chawk-gem.png
-[DS img]: https://gemnasium.com/queuetue/chawk-gem.png
-[CC img]: https://codeclimate.com/github/queuetue/chawk-gem.png
-[CS img]: https://coveralls.io/repos/queuetue/chawk/badge.png?branch=master
+[![Build Status](https://travis-ci.org/queuetue/chawk-gem.svg)](https://travis-ci.org/queuetue/chawk-gem)
+[![Dependency Status](http://img.shields.io/gemnasium/queuetue/chawk-gem.svg)](https://gemnasium.com/queuetue/chawk-gem)
+[![Code Climate](http://img.shields.io/codeclimate/github/queuetue/chawk-gem.svg)](https://codeclimate.com/github/queuetue/chawk-gem)
+[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 
 ## Description
 Chawk is a database agnostic time-series database written in Ruby.
 
-It tracks both both points (Integers) and values (String) in seperate datastores, and will eventually provide statistical and aggregate tools for numeric data.
+It tracks points (Integers) and will eventually provide statistical and aggregate tools for numeric data.
 
-This is the gem that powers the soon-to-be server, chawk-server
+This is the gem that powers the server, [Chawkolate](http://www.github.com/queuetue/chawkolate "Chawkolate at Github"). 
 
 Docs at [Queuetue.com](http://queuetue.com/Chawk "queuetue.com")
 
@@ -45,55 +36,30 @@ Or install it yourself as:
 Setup
 
     require 'chawk'
-    Chawk.setup 'sqlite::memory:'
+	ActiveRecord::Base.logger = Logger.new(STDOUT)
+	ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 
-DO NOT DO THIS ON AN EXISTING DATABASE, but the first time using a new database (Like this sqlite memory one that is destroyed at program exit) you should call: 
+The first time using a new database (Like this sqlite memory one that is destroyed at program exit) you should call: 
 
-    DataMapper.auto_upgrade!
+	require "chawk/migration"
+	CreateChawkBase.migrate :up
+	File.open('./test/schema.rb', "w") do |file|
+		ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
+	end
+
+Or, setup activerecord and manage migrations however you usually do.  (Rails will handle this for you, using the chawk-rails gem)
 
 All Chawk data operations require an Agent.  This can be used as the main actor in your code, or can be a proxy for your own User, etc through the foreign_id property.
 
-    agent = Chawk::Models::Agent.first(name:"Steve Austin") || Chawk::Models::Agent.new(name:"Steve Austin")
+    agent = Chawk::Models::Agent.where(name:"Steve Austin").first || Chawk::Models::Agent.new(name:"Steve Austin")
 
 All data operations are performed through an Addr object.
 
-    addr = Chawk.addr(agent,"inventory/popcorn")
+    addr = Chawk.addr(agent,"inventory:popcorn")
 
-The Addr object has two store objects - values and points.  **Points** are integers and allow mathematical and statistical operations. **Values** are strings and are intended for storing informational or serialized time series data.:
+The Addr object stores and protects points.  Points are integers and allow mathematical and statistical operations. 
 
-    addr.values << "This is a test."
-    addr.values.last
-    =>  #<Chawk::Models::Value @id=...
-    		@observed_at=... 
-			@recorded_at=#<DateTime: ...> 
-			@meta=nil 
-			@value="This is a test." 
-			@node_id=... 
-			@agent_id=...>
-
-	addr.values << ["AND","SO","IS","THIS"]
-    addr.values.last
-	 => #<Chawk::Models::Value ... @value="THIS">
-	addr.values.last(10)
-	=> [#<Chawk::Models::Value ... @value="This is a test.">, 
-		#<Chawk::Models::Value ... @value="AND">, 
-		#<Chawk::Models::Value ... @value="SO">, 
-		#<Chawk::Models::Value ... @value="IS">, 
-		#<Chawk::Models::Value ... @value="THIS">]
-
-Addr can also return ranges from the past using the range method or the last method:
-
-	addr.values.range(Time.now-2000,Time.now-1000)
-	=> [#<Chawk::Models::Value ... @value="ROCK">, 
-		#<Chawk::Models::Value ... @value="AROUND">]
-
-	addr.values.since(Time.now-1000)
-	=> [#<Chawk::Models::Value ... @value="THE.">, 
-		#<Chawk::Models::Value ... @value="CLOCK">]
-
-These same methods also work for points:
-
-	addr.points << [10,9,8,7,6,5]
+	addr.add_points [10,9,8,7,6,5]
 	addr.points.last
 	=> #<Chawk::Models::Point ... @value=5>
 	addr.points.last(2)
@@ -115,6 +81,25 @@ As well as max and min
 	addr.points.last
 	=> 1
 
+Addr can also return ranges from the past using the range method or the last method:
+
+	ts = Time.now
+	addr._insert_point(0,ts-1000)
+	addr._insert_point(1,ts-1000)
+	addr._insert_point(2,ts-1000)
+	addr._insert_point(5,ts-800)
+	addr._insert_point(8,ts-200)
+	addr._insert_point(9,ts-10)
+	addr.points_range(ts-1001,ts).length
+	=> 6
+	addr.points_range(ts-801,ts).length 
+	=>3
+	addr.points_range(ts-201,ts).length 
+	=> 2
+	addr.points_range(ts-11,ts).length 
+	=> 1
+	addr.points_range(ts-1001,ts-999).length
+	=> 3
 
 ## Contributing
 
@@ -123,6 +108,23 @@ As well as max and min
 3. Commit your changes => `git commit -am 'Add some feature'`
 4. Push to the branch => `git push origin my-new-feature`
 5. Create new Pull Request
+
+## Rights
+
+Limor Fried, also known as Ladayada of adafruit industries has suggested these rights for Internet of Things creators.
+They are published here to support fair and honest practices for data collection initiatives. [Original Link](http://www.nytimes.com/roomfordebate/2013/09/08/privacy-and-the-internet-of-things/a-bill-of-rights-for-the-internet-of-things)
+
+* Open is better than closed; this ensures portability between Internet of Things devices.
+
+* Consumers, not companies, own the data collected by Internet of Things devices.
+
+* Internet of Things devices that collect public data must share that data.
+
+* Users have the right to keep their data private.
+
+* Users can delete or back up data collected by Internet of Things devices.
+
+Chawk is designed with these ideals in mind.
 
 ## License
 
