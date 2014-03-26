@@ -3,32 +3,52 @@ module Chawk
 	# Models used in Chawk.  ActiveRecord classes.
 	module Models
 
-		class Range
-			attr_accessor :data
-		# @param beats in beats (.25 seconds)
-		# 4=1s interval 240=1m interval
-			def initialize(nodes, from, to, beats, default=0)
-				@from = from.to_f
-				@to = to.to_f
-				@beats = beats
-				value = default
-				step = 0.25 * beats
-				now = (@from*4).round/4.to_f
-				@data = []
+		class Range < ActiveRecord::Base
+			self.table_name_prefix = "chawk_"
+			validates :start_ts, :stop_ts, :beats, :parent_node, presence:true
+			validates :subkey, :data_node, absence: true
+			validate :order_is_correct
+
+			before_create :build_subnode
+
+			after_create :build_dataset
+
+			belongs_to :parent_node, class_name:"Chawk::Models::Node"
+			belongs_to :data_node, class_name:"Chawk::Models::Node"
+
+			def build_subnode
+				if subkey.to_s == ''
+					self.subkey = parent_node.key + "/" + SecureRandom.hex.to_s
+				end
+				self.data_node = Chawk::Models::Node.create(key:subkey)
+			end
+
+			def order_is_correct
+				if start_ts >= stop_ts
+					errors.add(:stop_ts, "must be after start_ts.")
+				end
+			end
+
+			def build_dataset
+				populate!
+			end
+
+			def populate!
+				# TODO: Accounting hook
+				# TODO: perform in callback (celluloid?)
+				ts = Time.now
+				self.data_node.points.destroy_all
+				step = 0.25 * self.beats
+				now = (self.start_ts*4).round/4.to_f
 				index = 0
-				while now < @to
-					key = "a"
-					val_group = {"t"=>now,"i"=>index}
-					nodes.each do |node|
-						point = node.points.where("observed_at >= :dt_from AND observed_at <= :dt_to",{dt_from:@from,dt_to:now}).order(observed_at: :desc, id: :desc).first
-						if point
-							val_group[key] = point.value
-						else
-							val_group[key] = default
-						end
-						key = key.next
+				while now < self.stop_ts
+					point = parent_node.points.where("observed_at >= :dt_from AND observed_at <= :dt_to",{dt_from:self.start_ts,dt_to:now}).order(observed_at: :desc, id: :desc).first
+					if point
+						value = point.value
+					else
+						value = default || 0
 					end
-					@data << val_group
+					data_node.points.create(observed_at:now, recorded_at:ts, value:value)
 					now += step
 					index += 1
 				end
@@ -58,13 +78,30 @@ module Chawk
 			belongs_to :agent
 			has_many :points
 			has_many :values
-			has_many :relations			
+			has_many :relations
+			has_many :ranges, foreign_key: :parent_node_id
 
 			def init
 				@agent = nil
+				@invalid_at = {}
+			end
+
+			def invalidate!(at_list)
+				range_map = {}
+				at_list.keys.each do |at|
+					self.ranges.where("start_ts <= ? AND stop_ts >= ?",at,at).each do |range|
+						range_map[range] = 1
+					end
+				end
+
+				range_map.keys.each do |range|
+					range.populate!
+				end
+
 			end
 
 			def _insert_point(val,ts,options={})
+				@invalid_at[ts] = 1
 				values = {value:val,observed_at:ts.to_f}
 				if options[:meta]
 					if options[:meta].is_a?(Hash)
@@ -131,6 +168,7 @@ module Chawk
 				else
 					point_recognizer(args, dt, options)
 				end
+				invalidate! @invalid_at
 			end
 
 			def increment(value=1, options={})
@@ -140,6 +178,7 @@ module Chawk
 				else 
 					raise ArgumentError, "Value must be an Integer"
 				end
+				invalidate! @invalid_at
 			end
 
 			def decrement(value=1, options={})
@@ -148,6 +187,7 @@ module Chawk
 				else 
 					raise ArgumentError, "Value must be an Integer"
 				end
+				invalidate! @invalid_at
 			end
 
 			def max()

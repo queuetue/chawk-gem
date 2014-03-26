@@ -21,51 +21,18 @@ describe Chawk do
     addr1._insert_point(91,1131.9783343810343)
     addr1._insert_point(88,1132.299788479544)
 
-    addr2._insert_point(93,1093.6974808234377)
-    addr2._insert_point(92,1097.2411412783788)
-    addr2._insert_point(87,1105.2132395159897)
-    addr2._insert_point(87,1124.8179760753346)
-    addr2._insert_point(85,1129.7277263712253)
-    addr2._insert_point(83,1132.3545932644981)
-    addr2._insert_point(78,1152.0589070864482)
+    range = Chawk::Models::Range.create(start_ts:1085.0,stop_ts:1140.0,beats:5,parent_node:addr1)
 
-    addr3._insert_point(96,1085.890118672737)
-    addr3._insert_point(95,1092.4640639660179)
-    addr3._insert_point(95,1106.1278315096156)
-    addr3._insert_point(92,1122.5981895020082)
-    addr3._insert_point(89,1123.1438655965337)
-    addr3._insert_point(92,1135.092423985953)
+    range.data_node.points.length.must_equal(44)
+    range.data_node.points[25].value.must_equal(92)
+    range.data_node.points[40].value.must_equal(88)
+    range.data_node.points.to_a.map{|x|x.value}.reduce(:+).must_equal(3939)
 
-    Chawk::Models::Range.new([addr1,addr2,addr3], 1100,1128,4).data.must_equal [
-        {"t"=>1100.0, "i"=>0, "a"=>0, "b"=>0, "c"=>0},
-        {"t"=>1101.0, "i"=>1, "a"=>94, "b"=>0, "c"=>0},
-        {"t"=>1102.0, "i"=>2, "a"=>94, "b"=>0, "c"=>0},
-        {"t"=>1103.0, "i"=>3, "a"=>92, "b"=>0, "c"=>0},
-        {"t"=>1104.0, "i"=>4, "a"=>92, "b"=>0, "c"=>0},
-        {"t"=>1105.0, "i"=>5, "a"=>92, "b"=>0, "c"=>0},
-        {"t"=>1106.0, "i"=>6, "a"=>92, "b"=>87, "c"=>0},
-        {"t"=>1107.0, "i"=>7, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1108.0, "i"=>8, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1109.0, "i"=>9, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1110.0, "i"=>10, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1111.0, "i"=>11, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1112.0, "i"=>12, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1113.0, "i"=>13, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1114.0, "i"=>14, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1115.0, "i"=>15, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1116.0, "i"=>16, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1117.0, "i"=>17, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1118.0, "i"=>18, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1119.0, "i"=>19, "a"=>92, "b"=>87, "c"=>95},
-        {"t"=>1120.0, "i"=>20, "a"=>94, "b"=>87, "c"=>95},
-        {"t"=>1121.0, "i"=>21, "a"=>94, "b"=>87, "c"=>95},
-        {"t"=>1122.0, "i"=>22, "a"=>94, "b"=>87, "c"=>95},
-        {"t"=>1123.0, "i"=>23, "a"=>94, "b"=>87, "c"=>92},
-        {"t"=>1124.0, "i"=>24, "a"=>94, "b"=>87, "c"=>89},
-        {"t"=>1125.0, "i"=>25, "a"=>94, "b"=>87, "c"=>89},
-        {"t"=>1126.0, "i"=>26, "a"=>91, "b"=>87, "c"=>89},
-        {"t"=>1127.0, "i"=>27, "a"=>91, "b"=>87, "c"=>89}
-      ]
+    addr1.add_points [{'v'=>1500, 't'=>1135.0}] #invalidate range and rebuild
+
+    range.reload
+    range.data_node.points[40].value.must_equal(1500)
+    range.data_node.points.to_a.map{|x|x.value}.reduce(:+).must_equal(9587)
 
   end
 end
