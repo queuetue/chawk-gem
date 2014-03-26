@@ -40,7 +40,6 @@ module Chawk
 				self.data_node.points.destroy_all
 				step = 0.25 * self.beats
 				now = (self.start_ts*4).round/4.to_f
-				index = 0
 				while now < self.stop_ts
 					point = parent_node.points.where("observed_at >= :dt_from AND observed_at <= :dt_to",{dt_from:self.start_ts,dt_to:now}).order(observed_at: :desc, id: :desc).first
 					if point
@@ -50,7 +49,6 @@ module Chawk
 					end
 					data_node.points.create(observed_at:now, recorded_at:ts, value:value)
 					now += step
-					index += 1
 				end
 			end
 		end
