@@ -3,6 +3,38 @@ module Chawk
 	# Models used in Chawk.  ActiveRecord classes.
 	module Models
 
+		class Range
+			attr_accessor :data
+		# @param beats in beats (.25 seconds)
+		# 4=1s interval 240=1m interval
+			def initialize(nodes, from, to, beats, default=0)
+				@from = from.to_f
+				@to = to.to_f
+				@beats = beats
+				value = default
+				step = 0.25 * beats
+				now = (@from*4).round/4.to_f
+				@data = []
+				index = 0
+				while now < @to
+					key = "a"
+					val_group = {"t"=>now,"i"=>index}
+					nodes.each do |node|
+						point = node.points.where("observed_at >= :dt_from AND observed_at <= :dt_to",{dt_from:@from,dt_to:now}).order(observed_at: :desc, id: :desc).first
+						if point
+							val_group[key] = point.value
+						else
+							val_group[key] = default
+						end
+						key = key.next
+					end
+					@data << val_group
+					now += step
+					index += 1
+				end
+			end
+		end
+
 		# Contains a foreign_id for use as a proxy to another table.
 		class Agent < ActiveRecord::Base
 			self.table_name_prefix = "chawk_"
