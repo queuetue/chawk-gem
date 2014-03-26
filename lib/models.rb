@@ -33,8 +33,8 @@ module Chawk
 				populate!
 			end
 
-			def point_from_parent_point(now, start, finish)
-				point = parent_node.points.where("observed_at >= :dt_from AND observed_at <= :dt_to",{dt_from:start,dt_to:finish}).order(observed_at: :desc, id: :desc).first
+			def point_from_parent_point(now)
+				point = parent_node.points.where("observed_at <= :dt_to",{dt_to:now}).order(observed_at: :desc, id: :desc).first
 				if point
 					value = point.value
 				else
@@ -50,7 +50,7 @@ module Chawk
 				step = 0.25 * self.beats
 				now = (self.start_ts*4).round/4.to_f
 				while now < self.stop_ts
-					point = point_from_parent_point now, self.start_ts, now
+					point = point_from_parent_point now
 					now += step
 				end
 			end
