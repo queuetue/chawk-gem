@@ -101,6 +101,13 @@ Addr can also return ranges from the past using the range method or the last met
 	addr.points_range(ts-1001,ts-999).length
 	=> 3
 
+A Chawk::Models::Range object, (soon to be merged with the Chark.range command) produce time-limited, quantized data sets prepared for viewing, with resolution to the quarter second (one beat).
+
+	range = Chawk::Models::Range.create(start_ts:1085.0,stop_ts:1140.0,beats:1,parent_node:addr1)
+
+This will return all data from the Addr parent_node in the range from timestamp 1085 to 1140, resampled to the quarter beat. (180 data points, no matter how many are actually present in the sample)  This will become a stable hidden node (accessable via Addr.ranges) and will automatically rebuild itself if data within it's range changes.
+
+
 ## Contributing
 
 1. Fork it at [github](http://github.com/queuetue/chawk-gem/fork "Github")
