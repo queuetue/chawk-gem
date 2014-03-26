@@ -84,25 +84,23 @@ module Chawk
 
 			def init
 				@agent = nil
-				@invalid_at = {}
 			end
 
 			def invalidate!(at_list)
-				range_map = {}
-				at_list.keys.each do |at|
+				ranges = []
+				at_list.each do |at|
 					self.ranges.where("start_ts <= ? AND stop_ts >= ?",at,at).each do |range|
-						range_map[range] = 1
+						ranges << range
 					end
 				end
 
-				range_map.keys.each do |range|
+				ranges.uniq.each do |range|
 					range.populate!
 				end
 
 			end
 
 			def _insert_point(val,ts,options={})
-				@invalid_at[ts] = 1
 				values = {value:val,observed_at:ts.to_f}
 				if options[:meta]
 					if options[:meta].is_a?(Hash)
@@ -112,6 +110,7 @@ module Chawk
 					end
 				end
 				self.points.create(values)
+				ts
 			end
 
 			def _insert_point_hash(item,ts,options)
@@ -161,15 +160,16 @@ module Chawk
 			# @param options [Hash] You can also pass in :meta and :timestamp 
 			# Add an item or an array of items (one at a time) to the datastore.
 			def add_points(args,options={})
+				invalid_times = []
 				options[:observed_at] ? dt = options[:observed_at] : dt = Time.now
 				if args.is_a?(Array)
 					args.each do |arg|
-						point_recognizer(arg, dt, options)
+						invalid_times << point_recognizer(arg, dt, options)
 					end
 				else
-					point_recognizer(args, dt, options)
+						invalid_times << point_recognizer(args, dt, options)
 				end
-				invalidate! @invalid_at
+				invalidate! invalid_times.uniq
 			end
 
 			def increment(value=1, options={})
@@ -179,7 +179,6 @@ module Chawk
 				else 
 					raise ArgumentError, "Value must be an Integer"
 				end
-				invalidate! @invalid_at
 			end
 
 			def decrement(value=1, options={})
@@ -188,7 +187,6 @@ module Chawk
 				else 
 					raise ArgumentError, "Value must be an Integer"
 				end
-				invalidate! @invalid_at
 			end
 
 			def max()
