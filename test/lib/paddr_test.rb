@@ -163,6 +163,9 @@ describe Chawk do
     @addr.points.last.value.must_equal(4)
     JSON.parse(@addr.points.last.meta).must_equal(metadata)
 
+    metadata = ["completely wrong"]
+    lambda {@addr.add_points([1,2,3,4],{:meta=>metadata})}.must_raise(ArgumentError)
+
   end
 
 
