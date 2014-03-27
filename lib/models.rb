@@ -197,6 +197,24 @@ module Chawk
 				points.minimum('value') || 0
 			end
 
+			def mean
+				points = self.points.to_a
+				points.reduce(0) {|sum,p| sum+=p.value}.to_f / points.length
+			end
+
+			def sum
+				points = self.points.to_a
+				points.reduce(0) {|sum,p| sum+=p.value}
+			end
+
+			def stdev
+				dataset = self.points.map!(&:value)
+				count = dataset.size
+				mean = dataset.reduce(&:+) / count
+				sum_sqr = dataset.map {|x| x * x}.reduce(&:+)
+				Math.sqrt((sum_sqr - count * mean * mean)/(count-1))
+			end
+
 			# Returns items whose observed_at times fit within from a range.
 			# @param dt_from [Time::Time] The start time.
 			# @param dt_to [Time::Time] The end time.

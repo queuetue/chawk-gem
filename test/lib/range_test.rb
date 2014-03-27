@@ -26,18 +26,22 @@ describe Chawk do
     range.data_node.points.length.must_equal(220)
     range.data_node.points[25].value.must_equal(92)
     range.data_node.points[140].value.must_equal(94)
-    range.data_node.points.to_a.map{|x|x.value}.reduce(:+).must_equal(20066)
+    range.data_node.sum.must_equal(20066)
+    range.data_node.mean.round(2).must_equal(91.21)
 
     addr1.add_points [{'v'=>1500, 't'=>1135.0}] #invalidate range and rebuild
 
     range.reload
     range.data_node.points[200].value.must_equal(1500)
-    range.data_node.points.to_a.map{|x|x.value}.reduce(:+).must_equal(48306)
+    range.data_node.sum.must_equal(48306)
 
     range = Chawk::Models::Range.create(start_ts:1088.0,stop_ts:8100.0,beats:14400,parent_node:addr1)
     range.data_node.points.length.must_equal(2)
 
-    range.data_node.points.to_a.map{|x|x.value}.reduce(:+).must_equal(1592)
+    range.data_node.sum.must_equal(1592)
+    range.data_node.mean.must_equal(796)
+
+    range.data_node.stdev.round(2).must_equal(995.61)
 
   end
 end
