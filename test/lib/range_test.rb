@@ -5,13 +5,16 @@ describe Chawk do
     @agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
   end
 
+  it "obeys the order" do
+    addr1 = Chawk.addr(@agent,'a:b')
+    Chawk::Models::Range.new(start_ts:1140.0,stop_ts:1085.0,beats:1,parent_node:addr1).save.must_equal false
+    Chawk::Models::Range.new(start_ts:1140.0,stop_ts:1140.0,beats:1,parent_node:addr1).save.must_equal false
+    Chawk::Models::Range.new(start_ts:1000.0,stop_ts:1140.0,beats:1,parent_node:addr1).save.must_equal true
+  end
+
   it "calculates range" do 
     addr1 = Chawk.addr(@agent,'a:b')
-    addr2 = Chawk.addr(@agent,'a:c')
-    addr3 = Chawk.addr(@agent,'a:d')
     addr1.points.destroy_all
-    addr2.points.destroy_all
-    addr3.points.destroy_all
 
     addr1._insert_point(92,1085.2340175364745)
     addr1._insert_point(94,1100.0643872093362)

@@ -24,7 +24,7 @@ module Chawk
 			end
 
 			def order_is_correct
-				if start_ts >= stop_ts
+				if self.start_ts => self.stop_ts
 					errors.add(:stop_ts, "must be after start_ts.")
 				end
 			end
