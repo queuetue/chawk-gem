@@ -31,7 +31,7 @@ module Chawk
 
       end
 
-      def _insert_point(val,ts,options={})
+      def _prepare_insert(val, ts, options)
         values = {value:val,observed_at:ts.to_f}
         if options[:meta]
           if options[:meta].is_a?(Hash)
@@ -40,7 +40,37 @@ module Chawk
             raise ArgumentError, "Meta must be a JSON-representable Hash. #{options[:meta].inspect}"
           end
         end
-        self.points.create(values)
+        values
+      end
+
+      def _insert_value(val,ts,options={})
+        self.values.create(_prepare_insert(val, ts, options))
+        ts
+      end
+
+      def value_recognizer(item, dt, options={})
+        case 
+        when item.is_a?(String)
+          _insert_value item,dt, options
+        else
+          raise ArgumentError, "Can't recognize format of data item. #{item.inspect}"
+        end
+      end
+
+      def add_values(args,options={})
+        invalid_times = []
+        options[:observed_at] ? dt = options[:observed_at] : dt = Time.now
+        if args.is_a?(Array)
+          args.each do |arg|
+            invalid_times << value_recognizer(arg, dt, options)
+          end
+        else
+            invalid_times << value_recognizer(args, dt, options)
+        end
+      end
+
+      def _insert_point(val,ts,options={})        
+        self.points.create(_prepare_insert(val, ts, options))
         ts
       end
 
@@ -144,6 +174,22 @@ module Chawk
         mean = dataset.reduce(&:+) / count
         sum_sqr = dataset.map {|x| x * x}.reduce(&:+)
         Math.sqrt((sum_sqr - count * mean * mean)/(count-1))
+      end
+
+      # Returns items whose observed_at times fit within from a range.
+      # @param dt_from [Time::Time] The start time.
+      # @param dt_to [Time::Time] The end time.
+      # @return [Array of Objects] 
+      def values_range(dt_from, dt_to,options={})
+        vals = values.where("observed_at >= :dt_from AND  observed_at <= :dt_to",{dt_from:dt_from.to_f,dt_to:dt_to.to_f}, limit:1000,order:"observed_at asc, id asc")
+        return vals
+      end
+
+      # Returns items whose observed_at times fit within from a range ending now.
+      # @param dt_from [Time::Time] The start time.
+      # @return [Array of Objects] 
+      def values_since(dt_from)
+        self.values_range(dt_from,Time.now)
       end
 
       # Returns items whose observed_at times fit within from a range.
