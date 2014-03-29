@@ -13,8 +13,15 @@ module Chawk
       has_many :relations
       has_many :ranges, foreign_key: :parent_node_id
 
+      attr_accessor :access
+
       def init
         @agent = nil
+      end
+
+      def clear_points!
+        check_admin_access
+        points.destroy_all
       end
 
       def invalidate!(at_list)
@@ -117,10 +124,29 @@ module Chawk
         end
       end
 
+      def check_write_access
+        unless [:full,:admin,:write].include? @access
+          raise SecurityError,"You do not have write access to this node."
+        end
+      end
+
+      def check_read_access
+        unless [:full,:admin,:read].include? @access
+          raise SecurityError,"You do not have read access to this node."
+        end
+      end
+
+      def check_admin_access
+        unless [:full,:admin,:read].include? @access
+          raise SecurityError,"You do not have admin access to this node."
+        end
+      end
+
       # @param args [Object, Array of Objects]
       # @param options [Hash] You can also pass in :meta and :timestamp 
       # Add an item or an array of items (one at a time) to the datastore.
       def add_points(args,options={})
+        check_write_access
         invalid_times = []
         options[:observed_at] ? dt = options[:observed_at] : dt = Time.now
         if args.is_a?(Array)
@@ -134,6 +160,7 @@ module Chawk
       end
 
       def increment(value=1, options={})
+        check_write_access
         if value.is_a?(Integer)
           last = self.points.last
           add_points last.value + value,options 
@@ -143,6 +170,7 @@ module Chawk
       end
 
       def decrement(value=1, options={})
+        check_write_access
         if value.is_a?(Integer)
           increment (-1) * value, options
         else 
@@ -151,24 +179,29 @@ module Chawk
       end
 
       def max()
+        check_read_access
         points.maximum('value') || 0
       end
 
       def min()
+        check_read_access
         points.minimum('value') || 0
       end
 
       def mean
+        check_read_access
         points = self.points.to_a
         points.reduce(0) {|sum,p| sum+=p.value}.to_f / points.length
       end
 
       def sum
+        check_read_access
         points = self.points.to_a
         points.reduce(0) {|sum,p| sum+=p.value}
       end
 
       def stdev
+        check_read_access
         dataset = self.points.map!(&:value)
         count = dataset.size
         mean = dataset.reduce(&:+) / count
@@ -181,6 +214,7 @@ module Chawk
       # @param dt_to [Time::Time] The end time.
       # @return [Array of Objects] 
       def values_range(dt_from, dt_to,options={})
+        check_read_access
         vals = values.where("observed_at >= :dt_from AND  observed_at <= :dt_to",{dt_from:dt_from.to_f,dt_to:dt_to.to_f}, limit:1000,order:"observed_at asc, id asc")
         return vals
       end
@@ -189,6 +223,7 @@ module Chawk
       # @param dt_from [Time::Time] The start time.
       # @return [Array of Objects] 
       def values_since(dt_from)
+        check_read_access
         self.values_range(dt_from,Time.now)
       end
 
@@ -197,6 +232,7 @@ module Chawk
       # @param dt_to [Time::Time] The end time.
       # @return [Array of Objects] 
       def points_range(dt_from, dt_to,options={})
+        check_read_access
         vals = points.where("observed_at >= :dt_from AND  observed_at <= :dt_to",{dt_from:dt_from.to_f,dt_to:dt_to.to_f}, limit:1000,order:"observed_at asc, id asc")
         return vals
       end
@@ -205,6 +241,7 @@ module Chawk
       # @param dt_from [Time::Time] The start time.
       # @return [Array of Objects] 
       def points_since(dt_from)
+        check_read_access
         self.points_range(dt_from,Time.now)
       end
 
@@ -212,8 +249,16 @@ module Chawk
       # @param value [Boolean] true if public reading is allowed, false if it is not.
       def set_public_read(value)
         value = value ? true : false
-        self.public_read = value
-        save
+        self.update_attributes :public_read => value
+        #save
+      end
+
+      # Sets public write flag for this address 
+      # @param value [Boolean] true if public writing is allowed, false if it is not.
+      def set_public_write(value)
+        value = value ? true : false
+        self.update_attributes :public_write => value
+        #save
       end
 
       # Sets permissions flag for this address, for a specific agent.  The existing Chawk::Relationship will be destroyed and 
@@ -223,7 +268,9 @@ module Chawk
       # @param write [Boolean] true/false can the agent write this address. (Read acces is required to write.)
       # @param admin [Boolean] does the agent have ownership/adnim rights for this address. (Read and write are granted if admin is as well.)
       def set_permissions(agent,read=false,write=false,admin=false)
-        relations.where(agent_id:agent.id).destroy_all
+        rels = relations.where(:agent_id => agent.id)
+        rels.delete_all()
+        rels = relations.where(:agent_id => agent.id)
         if read || write || admin
           vals = {agent:agent,read:(read ? true : false),write:(write ? true : false),admin:(admin ? true : false)}
           relations.create(vals)

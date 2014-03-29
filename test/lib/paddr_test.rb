@@ -2,10 +2,9 @@ require 'test_helper'
 
 describe Chawk do
   before do
-    #@board = Chawk::Board.new()
+    Chawk.clear_all_data!
     @agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
     @addr = Chawk.addr(@agent,'a:b')
-    @addr.points.destroy_all
   end
 
  	it "has length" do
@@ -25,14 +24,14 @@ describe Chawk do
  		@addr.points.length.must_equal(7)
  	end
 
- 	# it "has destroy_all" do
-  # 		@addr.points.must_respond_to(:destroy_all)
- 	# end
+ 	it "clears points" do
+   		@addr.must_respond_to(:clear_points!)
+ 	 end
 
  	it "clears history" do
-	    @addr.add_points [1,2,3,4]
+	  @addr.add_points [1,2,3,4]
  		@addr.points.length.must_equal(4)
- 		@addr.points.destroy_all
+    @addr.clear_points!
  		@addr.points.length.must_equal(0)
  	end
 
@@ -248,31 +247,4 @@ describe Chawk do
   	@addr.points_since(ts-301).length.must_equal(2) 
 	end
 
-  # it :acts_like_an_integer do
-  #   @addr.add_points 36878
-  #   last = @addr.points.last
-  #   last.to_i.must_equal 36878
-  # end
-
-	# it "does mq" do
-	# 	@board.flush_notification_queue
-	# 	@board.notification_queue_length.must_equal (0)
-
-	# 	pointers = []
-	#    	pointers add_points @board.paddr(['0','1','2'])
-	#    	pointers add_points @board.paddr(['0','1','3'])
-	#    	pointers add_points @board.paddr(['0','1','4'])
-	#    	pointers add_points @board.paddr(['0','1','5'])
-
-	#    	pointers.each{|p|padd_points10}
-
-	# 	@board.notification_queue_length.must_equal (4)
-	# 	x = @board.pop_from_notification_queue
-	# 	x.length.must_equal(3)
-	# 	@board.notification_queue_length.must_equal (3)
-	# 	x = @board.pop_from_notification_queue
-	# 	x = @board.pop_from_notification_queue
-	# 	@board.notification_queue_length.must_equal (1)
-	# 	x.length.must_equal(3)
-	# end
 end

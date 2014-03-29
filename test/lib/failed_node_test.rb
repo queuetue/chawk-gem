@@ -2,7 +2,7 @@ require 'test_helper'
 require 'json'
 
 Jiggy = Chawk.clone 
-def Jiggy.find_or_create_node(agent,key) return nil end
+def Jiggy.find_or_create_node(agent,key,access=:full) return nil end
 
 describe Jiggy do
   before do

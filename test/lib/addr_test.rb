@@ -9,9 +9,14 @@ describe Chawk do
   end
 
   it "has a good agent" do
-    lambda {@addr = Chawk.addr(nil,'a:b')}.must_raise(ArgumentError)
-    lambda {@addr = Chawk.addr(Object.new,'a:b')}.must_raise(ArgumentError)
-    lambda {@addr = Chawk.addr(Chawk::Models::Agent,'a:b')}.must_raise(ArgumentError)
+    lambda {Chawk.addr(nil,'a:b')}.must_raise(ArgumentError)
+    lambda {Chawk.addr(Object.new,'a:b')}.must_raise(ArgumentError)
+    lambda {Chawk.addr(Chawk::Models::Agent,'a:b')}.must_raise(ArgumentError)
+    addr = Chawk.addr(@agent,'a:b').key.must_equal("a:b")
+    agent2 =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
+    addr = Chawk.addr(agent2,'a:b').key.must_equal("a:b")
+    agent3 =  Chawk::Models::Agent.create(:name=>"Test Failer")
+    lambda{Chawk.addr(agent3,'a:b').key.must_equal("a:b")}.must_raise(SecurityError)
   end
 
   it "has key" do
@@ -45,18 +50,43 @@ describe Chawk do
   end
 
   it "stops unauthorized access" do
-    agent2 = Chawk::Models::Agent.where("name=?","Steve Austin").first || Chawk::Models::Agent.create(name:"Steve Austin")
-    lambda{@addr = Chawk.addr(agent2,'a:b')}.must_raise SecurityError
+    @addr.set_permissions(@agent,true,false,false)
+    @addr = Chawk::Models::Node.find(@addr.id)
+    lambda{Chawk.addr(@agent,'a:b')}.must_raise SecurityError
+    @addr.set_permissions(@agent,false,false,false)
+    lambda{Chawk.addr(@agent,'a:b')}.must_raise SecurityError
+  end
+
+  it "stops unauthorized reads" do
+    @addr.set_permissions(@agent,false,false,false)
+    lambda{Chawk.addr(@agent,'a:b', :write)}.must_raise SecurityError
     @addr.set_public_read true
-    Chawk.addr(agent2,'a:b').key.must_equal "a:b"
+    Chawk.addr(@agent,'a:b', :read).key.must_equal "a:b"
     @addr.set_public_read false
-    lambda{@addr = Chawk.addr(agent2,'a:b')}.must_raise SecurityError
-    @addr.set_permissions(agent2,true,false,false)
-    Chawk.addr(agent2,'a:b').key.must_equal "a:b"
-    @addr.set_permissions(agent2,false,false,false)
-    lambda{@addr = Chawk.addr(agent2,'a:b')}.must_raise SecurityError
-    @addr.set_permissions(agent2,false,false,true)
-    Chawk.addr(agent2,'a:b').key.must_equal "a:b"
+    lambda{Chawk.addr(@agent,'a:b', :read)}.must_raise SecurityError
+    @addr.set_permissions(@agent,true,true,false)
+    w_addr = Chawk.addr(@agent,'a:b', :write)
+    lambda{w_addr.sum}.must_raise SecurityError
+  end
+
+  it "stops unauthorized writes" do
+    @addr.set_permissions(@agent,true,false,false)
+    lambda{Chawk.addr(@agent,'a:b', :write)}.must_raise SecurityError
+    @addr.set_public_write true
+    Chawk.addr(@agent,'a:b', :write).key.must_equal "a:b"
+    @addr.set_public_write false
+    lambda{Chawk.addr(@agent,'a:b', :write)}.must_raise SecurityError
+    r_addr = Chawk.addr(@agent,'a:b', :read)
+    lambda{r_addr.add_points([1,2,3,4])}.must_raise SecurityError
+  end
+
+  it "stops unauthorized admin" do
+    @addr.set_permissions(@agent,false,false,false)
+    lambda{Chawk.addr(@agent,'a:b', :admin)}.must_raise SecurityError
+    @addr.set_permissions(@agent,false,true,true)
+    Chawk.addr(@agent,'a:b', :admin).key.must_equal "a:b"
+    w_addr = Chawk.addr(@agent,'a:b', :write)
+    lambda{w_addr.clear_points!}.must_raise SecurityError
   end
 
 end

@@ -3,6 +3,7 @@
 
 describe Chawk do
  	before do
+    Chawk.clear_all_data!
 		@agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
 		@addr = Chawk.addr(@agent,'a:b')
    	@addr.values.destroy_all

@@ -4,33 +4,46 @@ require 'models'
 
 # Chawk is a gem for storing and retrieving time seris data.
 module Chawk
-	def self.check_node_security(agent,node)
-
-		if node.public_read
-			return node
-		end
+	def self.check_node_security(agent,node,access=:full)
 
 		rel = node.relations.where(agent_id:agent.id).first
 
 		if (rel && (rel.read || rel.admin))
-			return node
-		else
-			raise SecurityError,"You do not have permission to access this node. #{agent} #{rel}"
+			case access
+			when :read
+				return node if (rel.read or rel.admin)
+			when :write
+				return node if (rel.write or rel.write)
+			when :admin
+				return node if rel.admin
+			when :full
+				return node if rel.read && rel.write && rel.admin
+			end
 		end
+
+		case access
+		when :read
+			return node if (node.public_read)
+		when :write
+			return node if (node.public_write)
+		end
+
+		raise SecurityError,"You do not have permission to access this node. #{agent} #{rel} #{access}"
 	end
 
-	def self.find_or_create_node(agent,key)
+	def self.find_or_create_node(agent,key,access=:full)
 		#TODO also accept regex-tested string
 		raise(ArgumentError,"Key must be a string.") unless key.is_a?(String)
 
 		node = Chawk::Models::Node.where(key:key).first
 		if node
-			node = check_node_security(agent,node)
+			node = check_node_security(agent,node,access)
 		else
 			node = Chawk::Models::Node.create(key:key) if node.nil?
-			node.relations.create(agent:agent,node:node,admin:true,read:true,write:true)
-			return node
+			node.set_permissions(agent,true,true,true)
 		end
+		node.access = access
+		return node
 	end
 
 	# @param agent [Chawk::Agent] the agent whose permission will be used for this request 
@@ -38,7 +51,7 @@ module Chawk
 	# @return [Chawk::Addr]
 	# The primary method for retrieving an Addr.  If a key does not exist, it will be created 
 	# and the current agent will be set as an admin for it.
-	def self.addr(agent,key)
+	def self.addr(agent,key,access=:full)
 
 		unless key =~ /^[\w\:\$\!\@\*\[\]\~\(\)]+$/
 			raise ArgumentError, "Key can only contain [A-Za-z0-9_:$!@*[]~()] (#{key})"
@@ -52,7 +65,7 @@ module Chawk
 			raise ArgumentError, 'key must be a string.'
 		end
 
-		node = find_or_create_node(agent,key)
+		node = find_or_create_node(agent,key,access)
 
 		unless node
 			raise ArgumentError,"No node was returned."

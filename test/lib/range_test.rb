@@ -2,6 +2,7 @@ require 'test_helper'
 
 describe Chawk do
   before do
+    Chawk.clear_all_data!
     @agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
   end
 

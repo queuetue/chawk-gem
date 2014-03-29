@@ -1,4 +1,9 @@
+require 'pp'
+require 'pry'
+require 'pry-stack_explorer'
+require 'pry-debugger'
 require 'simplecov'
+
 SimpleCov.start do
   add_filter "/test/"
 end
@@ -18,7 +23,7 @@ ARGV.clear
 ENV["CHAWK_DEBUG"] ? debug_level=ENV["CHAWK_DEBUG"] : debug_level=:info
 
 #if ENV["TEST_DATABASE_LOG"]
-#	ActiveRecord::Base.logger = Logger.new(STDOUT)
+#  ActiveRecord::Base.logger = Logger.new(STDOUT)
 #end
 
 require 'active_record'
