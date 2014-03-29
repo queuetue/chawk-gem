@@ -204,11 +204,14 @@ module Chawk
         self.points.length
       end
 
+      def sumsqr
+        self.points.map {|x| x.value * x.value}.reduce(&:+)
+      end
+
       def stdev
         check_read_access
         m = mean
-        sum_sqr = self.points.map {|x| x.value * x.value}.reduce(&:+)
-        Math.sqrt((sum_sqr - count * m * m)/(count-1))
+        Math.sqrt((sumsqr - count * m * m)/(count-1))
       end
 
       def _range(dt_from, dt_to, coll, options={})
