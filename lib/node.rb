@@ -112,38 +112,43 @@ module Chawk
         end
       end
 
-      def _add(args, options={})
-        check_write_access
-        options[:observed_at] ? dt = options[:observed_at] : dt = Time.now
-        if args.is_a?(Array)
-          args.each do |arg|
-            yield arg, dt, options
+      def _unravel(items)
+        if items.is_a?(Array)
+          items.each do |item|
+            yield item
           end
         else
-            yield args, dt, options
+          yield items
         end
+      end
+
+      def _add(args, type, options={})
+        check_write_access
+        ni = NodeInvalidator.new(self)
+        options[:observed_at] ? dt = options[:observed_at] : dt = Time.now
+        _unravel(args) do |arg|
+          case type
+          when :point
+            ni << point_recognizer(arg, dt, options)
+          when :value
+            ni << value_recognizer(arg, dt, options)
+          end
+        end
+        ni.invalidate!
       end
 
       # @param args [Object, Array of Objects]
       # @param options [Hash] You can also pass in :meta and :timestamp 
       # Add an item or an array of items (one at a time) to the datastore.
       def add_values(args,options={})
-        ni = NodeInvalidator.new(self)
-        _add(args,options) do |arg,dt,options|
-          ni << value_recognizer(arg, dt, options)
-        end
-        ni.invalidate!
+        _add(args,:value, options)
       end
 
       # @param args [Object, Array of Objects]
       # @param options [Hash] You can also pass in :meta and :timestamp 
       # Add an item or an array of items (one at a time) to the datastore.
       def add_points(args,options={})
-        ni = NodeInvalidator.new(self)
-        _add(args,options) do |arg,dt,options|
-          ni << point_recognizer(arg, dt, options)
-        end
-        ni.invalidate!
+        _add(args,:point,options)
       end
 
       def _insert_point(val,ts,options={})        
