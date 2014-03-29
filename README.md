@@ -59,9 +59,17 @@ All data operations are performed through an Addr object, which requires an agen
 
     addr = Chawk.addr(agent,"inventory:popcorn")
 
-Chawk.add assumes you are requesting full permissions, but you can specifically request :read, :write, :admin, or :full.
+Chawk.add assumes you are requesting full permissions, but you can specifically request :read, :write, :admin, or :full, which will allow specific operations and deny others.
 
     addr = Chawk.addr(agent,"inventory:popcorn", :read)
+
+Giving (or taking) permissions from an Addr can be done with the set_permissions method:
+
+	addr.set_permissions(agent, read, write, admin)
+
+Setting all three to false removes the Addr from the list of the agent's nodes.
+
+Addrs can also be given public read and write permissions, which allow agents without relationships to the Addr to manipulate it. The methods set_public_read(bool) and set_public_write(bool) set and remove these public permissions.
 
 The Addr object stores and protects points.  Points are integers and allow mathematical and statistical operations. 
 
