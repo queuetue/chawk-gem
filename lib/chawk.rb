@@ -4,29 +4,36 @@ require 'models'
 
 # Chawk is a gem for storing and retrieving time seris data.
 module Chawk
+
+	def self.check_node_relations_security(rel, access)
+		if (rel && (rel.read || rel.admin))
+			case access
+			when :read
+				(rel.read or rel.admin)
+			when :write
+				(rel.write or rel.write)
+			when :admin
+				rel.admin
+			when :full
+				(rel.read && rel.write && rel.admin)
+			end
+		end
+	end
+
+	def self.check_node_public_security(node, access)
+		case access
+		when :read
+			node.public_read == true
+		when :write
+			node.public_write == true
+		end
+	end
+
 	def self.check_node_security(agent,node,access=:full)
 
 		rel = node.relations.where(agent_id:agent.id).first
 
-		if (rel && (rel.read || rel.admin))
-			case access
-			when :read
-				return node if (rel.read or rel.admin)
-			when :write
-				return node if (rel.write or rel.write)
-			when :admin
-				return node if rel.admin
-			when :full
-				return node if rel.read && rel.write && rel.admin
-			end
-		end
-
-		case access
-		when :read
-			return node if (node.public_read)
-		when :write
-			return node if (node.public_write)
-		end
+		return node if check_node_relations_security(rel,access) || check_node_public_security(node,access)
 
 		raise SecurityError,"You do not have permission to access this node. #{agent} #{rel} #{access}"
 	end
