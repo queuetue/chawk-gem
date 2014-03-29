@@ -200,13 +200,20 @@ module Chawk
         points.reduce(0) {|sum,p| sum+=p.value}
       end
 
+      def count
+        self.points.length
+      end
+
       def stdev
         check_read_access
-        dataset = self.points.map!(&:value)
-        count = dataset.size
-        mean = dataset.reduce(&:+) / count
-        sum_sqr = dataset.map {|x| x * x}.reduce(&:+)
-        Math.sqrt((sum_sqr - count * mean * mean)/(count-1))
+        m = mean
+        sum_sqr = self.points.map {|x| x.value * x.value}.reduce(&:+)
+        Math.sqrt((sum_sqr - count * m * m)/(count-1))
+      end
+
+      def _range(dt_from, dt_to, coll, options={})
+        check_read_access
+        ret = coll.where("observed_at >= :dt_from AND  observed_at <= :dt_to",{dt_from:dt_from.to_f,dt_to:dt_to.to_f}, limit:1000,order:"observed_at asc, id asc")
       end
 
       # Returns items whose observed_at times fit within from a range.
@@ -214,16 +221,13 @@ module Chawk
       # @param dt_to [Time::Time] The end time.
       # @return [Array of Objects] 
       def values_range(dt_from, dt_to,options={})
-        check_read_access
-        vals = values.where("observed_at >= :dt_from AND  observed_at <= :dt_to",{dt_from:dt_from.to_f,dt_to:dt_to.to_f}, limit:1000,order:"observed_at asc, id asc")
-        return vals
+        _range(dt_from, dt_to, values, options)
       end
 
       # Returns items whose observed_at times fit within from a range ending now.
       # @param dt_from [Time::Time] The start time.
       # @return [Array of Objects] 
       def values_since(dt_from)
-        check_read_access
         self.values_range(dt_from,Time.now)
       end
 
@@ -232,16 +236,13 @@ module Chawk
       # @param dt_to [Time::Time] The end time.
       # @return [Array of Objects] 
       def points_range(dt_from, dt_to,options={})
-        check_read_access
-        vals = points.where("observed_at >= :dt_from AND  observed_at <= :dt_to",{dt_from:dt_from.to_f,dt_to:dt_to.to_f}, limit:1000,order:"observed_at asc, id asc")
-        return vals
+        _range(dt_from, dt_to, points, options)
       end
 
       # Returns items whose observed_at times fit within from a range ending now.
       # @param dt_from [Time::Time] The start time.
       # @return [Array of Objects] 
       def points_since(dt_from)
-        check_read_access
         self.points_range(dt_from,Time.now)
       end
 
