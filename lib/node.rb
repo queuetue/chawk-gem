@@ -76,6 +76,23 @@ module Chawk
         end
       end
 
+      # @param args [Object, Array of Objects]
+      # @param options [Hash] You can also pass in :meta and :timestamp 
+      # Add an item or an array of items (one at a time) to the datastore.
+      def add_points(args,options={})
+        check_write_access
+        invalid_times = []
+        options[:observed_at] ? dt = options[:observed_at] : dt = Time.now
+        if args.is_a?(Array)
+          args.each do |arg|
+            invalid_times << point_recognizer(arg, dt, options)
+          end
+        else
+            invalid_times << point_recognizer(args, dt, options)
+        end
+        invalidate! invalid_times.uniq
+      end
+
       def _insert_point(val,ts,options={})        
         self.points.create(_prepare_insert(val, ts, options))
         ts
@@ -140,23 +157,6 @@ module Chawk
         unless [:full,:admin,:read].include? @access
           raise SecurityError,"You do not have admin access to this node."
         end
-      end
-
-      # @param args [Object, Array of Objects]
-      # @param options [Hash] You can also pass in :meta and :timestamp 
-      # Add an item or an array of items (one at a time) to the datastore.
-      def add_points(args,options={})
-        check_write_access
-        invalid_times = []
-        options[:observed_at] ? dt = options[:observed_at] : dt = Time.now
-        if args.is_a?(Array)
-          args.each do |arg|
-            invalid_times << point_recognizer(arg, dt, options)
-          end
-        else
-            invalid_times << point_recognizer(args, dt, options)
-        end
-        invalidate! invalid_times.uniq
       end
 
       def increment(value=1, options={})
