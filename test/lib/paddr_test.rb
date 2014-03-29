@@ -12,7 +12,7 @@ describe Chawk do
  	end
 
  	it "calculates length" do
- 		@addr.points.destroy_all
+ 		@addr.clear_points!
  		@addr.points.length.must_equal(0)
  		@addr.add_points 2
  		@addr.points.length.must_equal(1)
@@ -37,11 +37,11 @@ describe Chawk do
 
  	it "doesn't clear the wrong history" do
 	    addr2 = Chawk.addr(@agent,'a:b')
-	    addr2.points.destroy_all
- 		@addr.points.destroy_all
+	    addr2.clear_points!
+ 		@addr.clear_points!
 	    addr2.add_points [1,2,3,4]
 	    @addr.add_points [1,2,3,4]
-	    addr2.points.destroy_all
+	    addr2.clear_points!
  		addr2.points.length.must_equal(0)
  		@addr.points.length.must_equal(4)
  	end
@@ -71,7 +71,7 @@ describe Chawk do
  	end
 
  	it "does increment" do
- 		@addr.points.destroy_all
+ 		@addr.clear_points!
 	    @addr.add_points 99
  		@addr.must_respond_to(:increment)
  		@addr.increment 10
@@ -179,7 +179,7 @@ describe Chawk do
  	# end
 
  	# it "does max()" do
- 	# 	@addr.points.destroy_all
+ 	# 	@addr.clear_points!
  	# 	@addr.add_points [1,2,3,4,5]
  	# 	@addr.max.must_equal(5)
  	# 	@addr.add_points 100
@@ -234,7 +234,7 @@ describe Chawk do
 	end
 
 	it "does since" do
-    @addr.points.destroy_all
+    @addr.clear_points!
 
 
  		ts = Time.now

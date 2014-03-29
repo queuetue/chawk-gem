@@ -7,3 +7,10 @@ Switched to ActiveRecord, removed DataMapper
 Points can now be passed as strings representing integers
 -- 0.1.18 --
 metadata is stored as json (must be passed as a hash)
+-- 0.2.0 --
+Semantic Versioning
+-- 0.3.0 --
+Values are now working with Points.
+Recalculating / self invalidating Ranges added
+Statistical analysis is functional, if not efficient.
+Finer grained security model

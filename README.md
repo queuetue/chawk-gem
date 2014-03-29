@@ -49,13 +49,19 @@ The first time using a new database (Like this sqlite memory one that is destroy
 
 Or, setup activerecord and manage migrations however you usually do.  (Rails will handle this for you, using the chawk-rails gem)
 
-All Chawk data operations require an Agent.  This can be used as the main actor in your code, or can be a proxy for your own User, etc through the foreign_id property.
+Chawk has a permissions model, which provides a framework for implementors to build a robust security model around, but it does not prevent implementors from overriding it.
+
+Chawk's permissions begin with the Agent.  All Chawk data operations require an Agent.  This can be used as the main actor in your implementation code, or can be a proxy for your own User, etc through the foreign_id property.
 
     agent = Chawk::Models::Agent.where(name:"Steve Austin").first || Chawk::Models::Agent.new(name:"Steve Austin")
 
-All data operations are performed through an Addr object.
+All data operations are performed through an Addr object, which requires an agent.
 
     addr = Chawk.addr(agent,"inventory:popcorn")
+
+Chawk.add assumes you are requesting full permissions, but you can specifically request :read, :write, :admin, or :full.
+
+    addr = Chawk.addr(agent,"inventory:popcorn", :read)
 
 The Addr object stores and protects points.  Points are integers and allow mathematical and statistical operations. 
 
@@ -72,14 +78,6 @@ Points can also use the increment and decrement operators
 	addr.points + 10
 	addr.pointslast
 	=> #<Chawk::Models::Point ... @value=15>
-
-As well as max and min
-
-	addr.points.max
-	=> 15
-	addr + 10
-	addr.points.last
-	=> 1
 
 Addr can also return ranges from the past using the range method or the last method:
 
