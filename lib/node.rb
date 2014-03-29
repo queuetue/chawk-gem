@@ -81,6 +81,11 @@ module Chawk
         @agent = nil
       end
 
+      def clear_values!
+        check_admin_access
+        values.destroy_all
+      end
+
       def clear_points!
         check_admin_access
         points.destroy_all

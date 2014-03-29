@@ -4,9 +4,9 @@
 describe Chawk do
  	before do
     Chawk.clear_all_data!
-		@agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
-		@addr = Chawk.addr(@agent,'a:b')
-   	@addr.values.destroy_all
+	@agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
+	@addr = Chawk.addr(@agent,'a:b')
+   	@addr.clear_values!
  	end
 
  	it "has length" do
@@ -14,7 +14,7 @@ describe Chawk do
  	end
 
 	it :calculates_length do
-		@addr.values.destroy_all
+		@addr.clear_values!
 		@addr.values.length.must_equal(0)
 		@addr.add_values "2"
 		@addr.values.length.must_equal(1)
@@ -27,9 +27,9 @@ describe Chawk do
 	end
 
 	it "clears history" do
-    @addr.add_values ["CLAM", "FISH","SEAHORSE","AQUAMAN","WET TIGER"]
-    @addr.values.length.must_equal(5)
-		@addr.values.destroy_all
+    	@addr.add_values ["CLAM", "FISH","SEAHORSE","AQUAMAN","WET TIGER"]
+    	@addr.values.length.must_equal(5)
+		@addr.clear_values!
 		@addr.values.length.must_equal(0)
 	end
 
