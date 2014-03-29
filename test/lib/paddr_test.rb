@@ -155,7 +155,8 @@ describe Chawk do
     metadata = {"info"=>"this is a test"}
     @addr.add_points([1,2,3,4],{:meta=>metadata})
     @addr.points.last.value.must_equal(4)
-    JSON.parse(@addr.points.last.meta).must_equal(metadata)
+    meta = @addr.points.last.meta
+    JSON.parse(meta).must_equal(metadata)
 
     metadata = {"number"=>123}
     @addr.add_points([1,2,3,4],{:meta=>metadata})
