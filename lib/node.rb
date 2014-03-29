@@ -23,6 +23,47 @@ module Chawk
       end
     end
 
+    class NodeAggregator
+
+      attr_reader :dataset
+
+      def initialize(node)
+        node.check_read_access
+        if node.points.length > 0
+          @dataset = node.points.to_a.reduce([]) {|ary,p| ary << p.value}
+        end
+      end
+
+      def max()
+        @dataset.max
+      end
+
+      def min()
+        @dataset.min
+      end
+
+      def mean
+        sum.to_f / @dataset.length
+      end
+
+      def sum
+        @dataset.reduce(0) {|sum,p| sum+=p}
+      end
+
+      def count
+        @dataset.length
+      end
+
+      def sumsqr
+        @dataset.map {|x| x * x}.reduce(&:+)
+      end
+
+      def stdev
+        m = mean
+        Math.sqrt((sumsqr - count * m * m)/(count-1))
+      end
+    end
+
     # The Node, where most Chawk:Addr information is persisted..
     class Node < ActiveRecord::Base
       attr_accessor :agent
@@ -188,42 +229,6 @@ module Chawk
         else 
           raise ArgumentError, "Value must be an Integer"
         end
-      end
-
-      def max()
-        check_read_access
-        points.maximum('value') || 0
-      end
-
-      def min()
-        check_read_access
-        points.minimum('value') || 0
-      end
-
-      def mean
-        check_read_access
-        points = self.points.to_a
-        points.reduce(0) {|sum,p| sum+=p.value}.to_f / points.length
-      end
-
-      def sum
-        check_read_access
-        points = self.points.to_a
-        points.reduce(0) {|sum,p| sum+=p.value}
-      end
-
-      def count
-        self.points.length
-      end
-
-      def sumsqr
-        self.points.map {|x| x.value * x.value}.reduce(&:+)
-      end
-
-      def stdev
-        check_read_access
-        m = mean
-        Math.sqrt((sumsqr - count * m * m)/(count-1))
       end
 
       def _range(dt_from, dt_to, coll, options={})

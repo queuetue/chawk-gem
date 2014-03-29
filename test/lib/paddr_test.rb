@@ -174,36 +174,36 @@ describe Chawk do
   	@addr.points.last(5).length.must_equal(5)
  	end
 
- 	it "has max()" do
-  		@addr.must_respond_to(:max)
- 	end
+ 	# it "has max()" do
+  # 		@addr.must_respond_to(:max)
+ 	# end
 
- 	it "does max()" do
- 		@addr.points.destroy_all
- 		@addr.add_points [1,2,3,4,5]
- 		@addr.max.must_equal(5)
- 		@addr.add_points 100
- 		@addr.max.must_equal(100)
- 		@addr.add_points 100
- 		@addr.max.must_equal(100)
- 		@addr.add_points 99
- 		@addr.max.must_equal(100)
- 		@addr.add_points 0
- 		@addr.max.must_equal(100)
- 	end
+ 	# it "does max()" do
+ 	# 	@addr.points.destroy_all
+ 	# 	@addr.add_points [1,2,3,4,5]
+ 	# 	@addr.max.must_equal(5)
+ 	# 	@addr.add_points 100
+ 	# 	@addr.max.must_equal(100)
+ 	# 	@addr.add_points 100
+ 	# 	@addr.max.must_equal(100)
+ 	# 	@addr.add_points 99
+ 	# 	@addr.max.must_equal(100)
+ 	# 	@addr.add_points 0
+ 	# 	@addr.max.must_equal(100)
+ 	# end
 
- 	it "does min()" do
- 		@addr.add_points [11,12,13,14,15]
- 		@addr.min.must_equal(11)
- 		@addr.add_points 100
- 		@addr.min.must_equal(11)
- 		@addr.add_points 10
- 		@addr.min.must_equal(10)
- 		@addr.add_points 99
- 		@addr.min.must_equal(10)
- 		@addr.add_points 0
- 		@addr.min.must_equal(0)
- 	end
+ 	# it "does min()" do
+ 	# 	@addr.add_points [11,12,13,14,15]
+ 	# 	@addr.min.must_equal(11)
+ 	# 	@addr.add_points 100
+ 	# 	@addr.min.must_equal(11)
+ 	# 	@addr.add_points 10
+ 	# 	@addr.min.must_equal(10)
+ 	# 	@addr.add_points 99
+ 	# 	@addr.min.must_equal(10)
+ 	# 	@addr.add_points 0
+ 	# 	@addr.min.must_equal(0)
+ 	# end
 
  	it :does_range do
   		@addr.must_respond_to(:points_range)

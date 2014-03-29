@@ -66,7 +66,7 @@ describe Chawk do
     lambda{Chawk.addr(@agent,'a:b', :read)}.must_raise SecurityError
     @addr.set_permissions(@agent,true,true,false)
     w_addr = Chawk.addr(@agent,'a:b', :write)
-    lambda{w_addr.sum}.must_raise SecurityError
+    lambda{w_addr.values_range(0,0)}.must_raise SecurityError
   end
 
   it "stops unauthorized writes" do

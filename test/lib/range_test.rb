@@ -15,7 +15,13 @@ describe Chawk do
 
   it "calculates range" do 
     addr1 = Chawk.addr(@agent,'a:b')
-    addr1.points.destroy_all
+    addr1.clear_points!
+
+    range = Chawk::Models::Range.create(start_ts:1085.0,stop_ts:1140.0,beats:1,parent_node:addr1)
+    ag = Chawk::Models::NodeAggregator.new(range.data_node)
+    ag.sum.must_equal(0)
+    ag.mean.round(2).must_equal(0.0)
+
 
     addr1._insert_point(92,1085.2340175364745)
     addr1._insert_point(94,1100.0643872093362)
@@ -30,22 +36,26 @@ describe Chawk do
     range.data_node.points.length.must_equal(220)
     range.data_node.points[25].value.must_equal(92)
     range.data_node.points[140].value.must_equal(94)
-    range.data_node.sum.must_equal(20066)
-    range.data_node.mean.round(2).must_equal(91.21)
+    ag = Chawk::Models::NodeAggregator.new(range.data_node)
+    ag.sum.must_equal(20066)
+    ag.mean.round(2).must_equal(91.21)
 
     addr1.add_points [{'v'=>1500, 't'=>1135.0}] #invalidate range and rebuild
 
     range.reload
     range.data_node.points[200].value.must_equal(1500)
-    range.data_node.sum.must_equal(48306)
+    ag = Chawk::Models::NodeAggregator.new(range.data_node)
+    ag.sum.must_equal(48306)
+    ag.max.must_equal(1500)
+    ag.min.must_equal(0)
 
     range = Chawk::Models::Range.create(start_ts:1088.0,stop_ts:8100.0,beats:14400,parent_node:addr1)
     range.data_node.points.length.must_equal(2)
 
-    range.data_node.sum.must_equal(1592)
-    range.data_node.mean.must_equal(796)
-
-    range.data_node.stdev.round(2).must_equal(995.61)
+    ag = Chawk::Models::NodeAggregator.new(range.data_node)
+    ag.sum.must_equal(1592)
+    ag.mean.must_equal(796)
+    ag.stdev.round(2).must_equal(995.61)
 
   end
 end
