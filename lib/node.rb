@@ -64,7 +64,7 @@ module Chawk
       end
     end
 
-    # The Node, where most Chawk:Addr information is persisted..
+    # The Node, where most Chawk:Node information is persisted..
     class Node < ActiveRecord::Base
       attr_accessor :agent
       after_initialize :init

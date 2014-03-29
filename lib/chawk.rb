@@ -54,11 +54,11 @@ module Chawk
 	end
 
 	# @param agent [Chawk::Agent] the agent whose permission will be used for this request 
-	# @param key [String] the string address this addr can be found in the database.
-	# @return [Chawk::Addr]
-	# The primary method for retrieving an Addr.  If a key does not exist, it will be created 
+	# @param key [String] the string address this node can be found in the database.
+	# @return [Chawk::Node]
+	# The primary method for retrieving an Node.  If a key does not exist, it will be created 
 	# and the current agent will be set as an admin for it.
-	def self.addr(agent,key,access=:full)
+	def self.node(agent,key,access=:full)
 
 		unless key =~ /^[\w\:\$\!\@\*\[\]\~\(\)]+$/
 			raise ArgumentError, "Key can only contain [A-Za-z0-9_:$!@*[]~()] (#{key})"
@@ -89,8 +89,8 @@ module Chawk
 	def self.bulk_add_points(agent, data)
 		data.keys.each do |key|
 			dset = data[key]
-			daddr = addr(agent,key)
-			daddr.add_points dset
+			dnode = node(agent,key)
+			dnode.add_points dset
 		end
 	end
 

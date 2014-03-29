@@ -4,248 +4,248 @@ describe Chawk do
   before do
     Chawk.clear_all_data!
     @agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
-    @addr = Chawk.addr(@agent,'a:b')
+    @node = Chawk.node(@agent,'a:b')
   end
 
  	it "has length" do
-   		@addr.points.must_respond_to(:length)
+   		@node.points.must_respond_to(:length)
  	end
 
  	it "calculates length" do
- 		@addr.clear_points!
- 		@addr.points.length.must_equal(0)
- 		@addr.add_points 2
- 		@addr.points.length.must_equal(1)
- 		@addr.add_points 2
- 		@addr.points.length.must_equal(2)
- 		@addr.add_points 2
- 		@addr.points.length.must_equal(3)
- 		@addr.add_points [1,2,3,4]
- 		@addr.points.length.must_equal(7)
+ 		@node.clear_points!
+ 		@node.points.length.must_equal(0)
+ 		@node.add_points 2
+ 		@node.points.length.must_equal(1)
+ 		@node.add_points 2
+ 		@node.points.length.must_equal(2)
+ 		@node.add_points 2
+ 		@node.points.length.must_equal(3)
+ 		@node.add_points [1,2,3,4]
+ 		@node.points.length.must_equal(7)
  	end
 
  	it "clears points" do
-   		@addr.must_respond_to(:clear_points!)
+   		@node.must_respond_to(:clear_points!)
  	 end
 
  	it "clears history" do
-	  @addr.add_points [1,2,3,4]
- 		@addr.points.length.must_equal(4)
-    @addr.clear_points!
- 		@addr.points.length.must_equal(0)
+	  @node.add_points [1,2,3,4]
+ 		@node.points.length.must_equal(4)
+    @node.clear_points!
+ 		@node.points.length.must_equal(0)
  	end
 
  	it "doesn't clear the wrong history" do
-	    addr2 = Chawk.addr(@agent,'a:b')
-	    addr2.clear_points!
- 		@addr.clear_points!
-	    addr2.add_points [1,2,3,4]
-	    @addr.add_points [1,2,3,4]
-	    addr2.clear_points!
- 		addr2.points.length.must_equal(0)
- 		@addr.points.length.must_equal(4)
+	    node2 = Chawk.node(@agent,'a:b')
+	    node2.clear_points!
+ 		@node.clear_points!
+	    node2.add_points [1,2,3,4]
+	    @node.add_points [1,2,3,4]
+	    node2.clear_points!
+ 		node2.points.length.must_equal(0)
+ 		@node.points.length.must_equal(4)
  	end
 
  	it "accepts _insert_point" do
- 		@addr._insert_point(100,Time.now)
- 		@addr.points.length.must_equal(1)
+ 		@node._insert_point(100,Time.now)
+ 		@node.points.length.must_equal(1)
  	end
 
  	it "accepts add_points" do
- 		@addr.must_respond_to(:"add_points")
+ 		@node.must_respond_to(:"add_points")
  	end
 
  	it "accepts integers" do
- 		@addr.add_points 10
- 		@addr.points.length.must_equal(1)
- 		@addr.add_points 0
- 		@addr.points.length.must_equal(2)
- 		@addr.add_points 190
- 		@addr.add_points 10002
-    @addr.add_points [10,0,190,100]
+ 		@node.add_points 10
+ 		@node.points.length.must_equal(1)
+ 		@node.add_points 0
+ 		@node.points.length.must_equal(2)
+ 		@node.add_points 190
+ 		@node.add_points 10002
+    @node.add_points [10,0,190,100]
     dt = Time.now.to_f
-    @addr.add_points [[10,dt],[0,dt],[190,dt],[100,dt]]
-    @addr.add_points [{"v"=>10},{"v"=>0},{"v"=>190},{"v"=>100,"t"=>dt}]
-    @addr.add_points [{"v"=>10,"t"=>dt},{"v"=>0,"t"=>dt},{"v"=>190,"t"=>dt},{"v"=>100,"t"=>dt}]
-    @addr.add_points [{"t"=>dt,"v"=>10},{"v"=>0,"t"=>dt},{"t"=>dt,"v"=>190},{"v"=>100,"t"=>dt}]
+    @node.add_points [[10,dt],[0,dt],[190,dt],[100,dt]]
+    @node.add_points [{"v"=>10},{"v"=>0},{"v"=>190},{"v"=>100,"t"=>dt}]
+    @node.add_points [{"v"=>10,"t"=>dt},{"v"=>0,"t"=>dt},{"v"=>190,"t"=>dt},{"v"=>100,"t"=>dt}]
+    @node.add_points [{"t"=>dt,"v"=>10},{"v"=>0,"t"=>dt},{"t"=>dt,"v"=>190},{"v"=>100,"t"=>dt}]
  	end
 
  	it "does increment" do
- 		@addr.clear_points!
-	    @addr.add_points 99
- 		@addr.must_respond_to(:increment)
- 		@addr.increment 10
- 		@addr.increment
- 		@addr.points.last.value.must_equal(110)
- 		@addr.increment -10
- 		@addr.points.last.value.must_equal(100)
-		@addr.increment 
- 		@addr.points.last.value.must_equal(101)
+ 		@node.clear_points!
+	    @node.add_points 99
+ 		@node.must_respond_to(:increment)
+ 		@node.increment 10
+ 		@node.increment
+ 		@node.points.last.value.must_equal(110)
+ 		@node.increment -10
+ 		@node.points.last.value.must_equal(100)
+		@node.increment 
+ 		@node.points.last.value.must_equal(101)
  	end
 
  	it "should only increment integers" do
- 		lambda {@addr.increment 'A'}.must_raise(ArgumentError)
- 		lambda {@addr.increment nil}.must_raise(ArgumentError)
+ 		lambda {@node.increment 'A'}.must_raise(ArgumentError)
+ 		lambda {@node.increment nil}.must_raise(ArgumentError)
  	end
 
  	it "does -" do
- 		@addr.points.must_respond_to(:"-")
- 		@addr.add_points 10
- 		@addr.decrement 100
- 		@addr.points.last.value.must_equal(-90)
- 		@addr.decrement -10
- 		@addr.points.last.value.must_equal(-80)
- 		@addr.decrement
- 		@addr.points.last.value.must_equal(-81)
+ 		@node.points.must_respond_to(:"-")
+ 		@node.add_points 10
+ 		@node.decrement 100
+ 		@node.points.last.value.must_equal(-90)
+ 		@node.decrement -10
+ 		@node.points.last.value.must_equal(-80)
+ 		@node.decrement
+ 		@node.points.last.value.must_equal(-81)
  	end
 
  	it "should only - integers" do
- 		lambda {@addr.decrement 'A'}.must_raise(ArgumentError)
- 		lambda {@addr.decrement nil}.must_raise(ArgumentError)
+ 		lambda {@node.decrement 'A'}.must_raise(ArgumentError)
+ 		lambda {@node.decrement nil}.must_raise(ArgumentError)
  	end
 
  	it "only accepts integers in proper formats" do
- 		lambda {@addr.add_points 10.0}.must_raise(ArgumentError)
- 		lambda {@addr.add_points nil}.must_raise(ArgumentError)
-    lambda {@addr.add_points [10.0,:x]}.must_raise(ArgumentError)
-    lambda {@addr.add_points [[10,10,10],[10,10,20]]}.must_raise(ArgumentError)
+ 		lambda {@node.add_points 10.0}.must_raise(ArgumentError)
+ 		lambda {@node.add_points nil}.must_raise(ArgumentError)
+    lambda {@node.add_points [10.0,:x]}.must_raise(ArgumentError)
+    lambda {@node.add_points [[10,10,10],[10,10,20]]}.must_raise(ArgumentError)
     dt = Time.now.to_f
-    lambda {@addr.add_points [{"x"=>10,"t"=>dt},{"x"=>0,"t"=>dt}]}.must_raise(ArgumentError)
+    lambda {@node.add_points [{"x"=>10,"t"=>dt},{"x"=>0,"t"=>dt}]}.must_raise(ArgumentError)
  	end
 
   it "accepts string integers in proper formats" do
-    lambda {@addr.add_points "X"}.must_raise(ArgumentError)
-    @addr.add_points "10"
-    @addr.points.length.must_equal(1)
-    @addr.add_points "0"
-    @addr.points.length.must_equal(2)
-    @addr.add_points "190"
-    @addr.add_points "10002"
-    @addr.add_points ["10","0","190","100"]
-    @addr.points.length.must_equal(8)
+    lambda {@node.add_points "X"}.must_raise(ArgumentError)
+    @node.add_points "10"
+    @node.points.length.must_equal(1)
+    @node.add_points "0"
+    @node.points.length.must_equal(2)
+    @node.add_points "190"
+    @node.add_points "10002"
+    @node.add_points ["10","0","190","100"]
+    @node.points.length.must_equal(8)
   end
 
   it "does bulk add points" do
     dt = Time.now.to_f
     Chawk.bulk_add_points(@agent, {"xxx"=>[1,2,3,4,5,6], "yyy"=>[[10,dt],[10,dt]], "zzz"=>[{"t"=>dt,"v"=>10},{"v"=>0,"t"=>dt}]})
 
-    Chawk.addr(@agent,"xxx").points.length.must_equal 6
-    Chawk.addr(@agent,"zzz").points.length.must_equal 2
-    Chawk.addr(@agent,"zzz").points.last.value.must_equal 0
+    Chawk.node(@agent,"xxx").points.length.must_equal 6
+    Chawk.node(@agent,"zzz").points.length.must_equal 2
+    Chawk.node(@agent,"zzz").points.last.value.must_equal 0
 
   end
 
  	it "has last()" do
-  		@addr.points.must_respond_to(:last)
+  		@node.points.must_respond_to(:last)
  	end
 
  	it "remembers last value" do
- 		@addr.add_points 10
-  		@addr.points.last.value.must_equal(10)
- 		@addr.add_points 1000
-  		@addr.points.last.value.must_equal(1000)
- 		@addr.add_points 99
-  		@addr.points.last.value.must_equal(99)
- 		@addr.add_points [10,0,190,100]
-  		@addr.points.last.value.must_equal(100)
+ 		@node.add_points 10
+  		@node.points.last.value.must_equal(10)
+ 		@node.add_points 1000
+  		@node.points.last.value.must_equal(1000)
+ 		@node.add_points 99
+  		@node.points.last.value.must_equal(99)
+ 		@node.add_points [10,0,190,100]
+  		@node.points.last.value.must_equal(100)
  	end
 
   it "stores meta information" do
 
     metadata = {"info"=>"this is a test"}
-    @addr.add_points([1,2,3,4],{:meta=>metadata})
-    @addr.points.last.value.must_equal(4)
-    meta = @addr.points.last.meta
+    @node.add_points([1,2,3,4],{:meta=>metadata})
+    @node.points.last.value.must_equal(4)
+    meta = @node.points.last.meta
     JSON.parse(meta).must_equal(metadata)
 
     metadata = {"number"=>123}
-    @addr.add_points([1,2,3,4],{:meta=>metadata})
-    @addr.points.last.value.must_equal(4)
-    JSON.parse(@addr.points.last.meta).must_equal(metadata)
+    @node.add_points([1,2,3,4],{:meta=>metadata})
+    @node.points.last.value.must_equal(4)
+    JSON.parse(@node.points.last.meta).must_equal(metadata)
 
     metadata = ["completely wrong"]
-    lambda {@addr.add_points([1,2,3,4],{:meta=>metadata})}.must_raise(ArgumentError)
+    lambda {@node.add_points([1,2,3,4],{:meta=>metadata})}.must_raise(ArgumentError)
 
   end
 
 
  	it "returns ordinal last" do
- 		@addr.add_points [10,9,8,7,6,5,4,3,2,1,0]
-  	@addr.points.last(5).length.must_equal(5)
+ 		@node.add_points [10,9,8,7,6,5,4,3,2,1,0]
+  	@node.points.last(5).length.must_equal(5)
  	end
 
  	# it "has max()" do
-  # 		@addr.must_respond_to(:max)
+  # 		@node.must_respond_to(:max)
  	# end
 
  	# it "does max()" do
- 	# 	@addr.clear_points!
- 	# 	@addr.add_points [1,2,3,4,5]
- 	# 	@addr.max.must_equal(5)
- 	# 	@addr.add_points 100
- 	# 	@addr.max.must_equal(100)
- 	# 	@addr.add_points 100
- 	# 	@addr.max.must_equal(100)
- 	# 	@addr.add_points 99
- 	# 	@addr.max.must_equal(100)
- 	# 	@addr.add_points 0
- 	# 	@addr.max.must_equal(100)
+ 	# 	@node.clear_points!
+ 	# 	@node.add_points [1,2,3,4,5]
+ 	# 	@node.max.must_equal(5)
+ 	# 	@node.add_points 100
+ 	# 	@node.max.must_equal(100)
+ 	# 	@node.add_points 100
+ 	# 	@node.max.must_equal(100)
+ 	# 	@node.add_points 99
+ 	# 	@node.max.must_equal(100)
+ 	# 	@node.add_points 0
+ 	# 	@node.max.must_equal(100)
  	# end
 
  	# it "does min()" do
- 	# 	@addr.add_points [11,12,13,14,15]
- 	# 	@addr.min.must_equal(11)
- 	# 	@addr.add_points 100
- 	# 	@addr.min.must_equal(11)
- 	# 	@addr.add_points 10
- 	# 	@addr.min.must_equal(10)
- 	# 	@addr.add_points 99
- 	# 	@addr.min.must_equal(10)
- 	# 	@addr.add_points 0
- 	# 	@addr.min.must_equal(0)
+ 	# 	@node.add_points [11,12,13,14,15]
+ 	# 	@node.min.must_equal(11)
+ 	# 	@node.add_points 100
+ 	# 	@node.min.must_equal(11)
+ 	# 	@node.add_points 10
+ 	# 	@node.min.must_equal(10)
+ 	# 	@node.add_points 99
+ 	# 	@node.min.must_equal(10)
+ 	# 	@node.add_points 0
+ 	# 	@node.min.must_equal(0)
  	# end
 
  	it :does_range do
-  		@addr.must_respond_to(:points_range)
+  		@node.must_respond_to(:points_range)
 
   		ts = Time.now
 
-  		@addr._insert_point(0,ts-1000)
-  		@addr._insert_point(1,ts-1000)
-  		@addr._insert_point(2,ts-1000)
-  		@addr._insert_point(3,ts-1000)
-  		@addr._insert_point(4,ts-1000)
-  		@addr._insert_point(5,ts-800)
-  		@addr._insert_point(6,ts-800)
-  		@addr._insert_point(7,ts-800)
-  		@addr._insert_point(8,ts-200)
-  		@addr._insert_point(9,ts-10)
-  		@addr._insert_point(10,ts-5)
- 	  	@addr.points_range(ts-1001,ts).length.must_equal 11 
- 	  	@addr.points_range(ts-801,ts).length.must_equal 6 
- 	  	@addr.points_range(ts-201,ts).length.must_equal 3 
-	  	@addr.points_range(ts-11,ts).length.must_equal 2 
-	  	@addr.points_range(ts-6,ts).length.must_equal 1 
-	  	@addr.points_range(ts-201,ts-11).length.must_equal 1 
-	  	@addr.points_range(ts-1001,ts-999).length.must_equal 5
+  		@node._insert_point(0,ts-1000)
+  		@node._insert_point(1,ts-1000)
+  		@node._insert_point(2,ts-1000)
+  		@node._insert_point(3,ts-1000)
+  		@node._insert_point(4,ts-1000)
+  		@node._insert_point(5,ts-800)
+  		@node._insert_point(6,ts-800)
+  		@node._insert_point(7,ts-800)
+  		@node._insert_point(8,ts-200)
+  		@node._insert_point(9,ts-10)
+  		@node._insert_point(10,ts-5)
+ 	  	@node.points_range(ts-1001,ts).length.must_equal 11 
+ 	  	@node.points_range(ts-801,ts).length.must_equal 6 
+ 	  	@node.points_range(ts-201,ts).length.must_equal 3 
+	  	@node.points_range(ts-11,ts).length.must_equal 2 
+	  	@node.points_range(ts-6,ts).length.must_equal 1 
+	  	@node.points_range(ts-201,ts-11).length.must_equal 1 
+	  	@node.points_range(ts-1001,ts-999).length.must_equal 5
 
-   		@addr._insert_point(0,ts-101)
-	  	@addr.points_range(ts-201,ts).length.must_equal 4 
+   		@node._insert_point(0,ts-101)
+	  	@node.points_range(ts-201,ts).length.must_equal 4 
 	end
 
 	it "does since" do
-    @addr.clear_points!
+    @node.clear_points!
 
 
  		ts = Time.now
 
- 		@addr._insert_point(0,ts-1000)
- 		@addr._insert_point(7,ts-800)
- 		@addr._insert_point(8,ts-200)
- 		@addr._insert_point(10,ts-5)
- 		@addr.must_respond_to(:points_since)
-  	@addr.points_since(ts-1001).length.must_equal(4) 
-  	@addr.points_since(ts-301).length.must_equal(2) 
+ 		@node._insert_point(0,ts-1000)
+ 		@node._insert_point(7,ts-800)
+ 		@node._insert_point(8,ts-200)
+ 		@node._insert_point(10,ts-5)
+ 		@node.must_respond_to(:points_since)
+  	@node.points_since(ts-1001).length.must_equal(4) 
+  	@node.points_since(ts-301).length.must_equal(2) 
 	end
 
 end

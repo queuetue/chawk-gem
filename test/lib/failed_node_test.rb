@@ -12,7 +12,7 @@ describe Jiggy do
 
   it "needs a valid node" do
 
-    lambda {@addr = Jiggy.addr(@agent,'a:b')}.must_raise(ArgumentError)
+    lambda {@node = Jiggy.node(@agent,'a:b')}.must_raise(ArgumentError)
   end
 
 end

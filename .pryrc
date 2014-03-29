@@ -15,8 +15,8 @@ File.open('./test/schema.rb', "w") do |file|
 end
 
 agent =  Chawk::Models::Agent.first || Chawk::Models::Agent.create(:name=>"Test User")
-addr1 = Chawk.addr(agent,'a:b')
-addr1.points.destroy_all
+node1 = Chawk.node(agent,'a:b')
+node1.points.destroy_all
 
 ts = Time.now.to_f
 

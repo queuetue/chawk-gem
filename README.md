@@ -55,67 +55,74 @@ Chawk's permissions begin with the Agent.  All Chawk data operations require an 
 
     agent = Chawk::Models::Agent.where(name:"Steve Austin").first || Chawk::Models::Agent.new(name:"Steve Austin")
 
-All data operations are performed through an Addr object, which requires an agent.
+All data operations are performed through an Node object, which requires an agent.
 
-    addr = Chawk.addr(agent,"inventory:popcorn")
+    node = Chawk.node(agent,"inventory:popcorn")
 
-Chawk.add assumes you are requesting full permissions, but you can specifically request :read, :write, :admin, or :full, which will allow specific operations and deny others.
+Chawk.add assumes you are requesting full permissions, but you can specifically request :read, :write, :admin, or :full, which will allow specific operations and deny others.  If a node does not exist when requested, it will be created and the current agen will be given full (read write and admin) permissions.
 
-    addr = Chawk.addr(agent,"inventory:popcorn", :read)
+    node = Chawk.node(agent,"inventory:popcorn", :read)
 
-Giving (or taking) permissions from an Addr can be done with the set_permissions method:
+Giving (or taking) permissions from an Node can be done with the set_permissions method:
 
-	addr.set_permissions(agent, read, write, admin)
+	node.set_permissions(agent, read, write, admin)
 
-Setting all three to false removes the Addr from the list of the agent's nodes.
+Setting all three to false removes the Node from the list of the agent's nodes.
 
-Addrs can also be given public read and write permissions, which allow agents without relationships to the Addr to manipulate it. The methods set_public_read(bool) and set_public_write(bool) set and remove these public permissions.
+Nodes can also be given public read and write permissions, which allow agents without relationships to the Node to manipulate it. The methods set_public_read(bool) and set_public_write(bool) set and remove these public permissions.
 
-The Addr object stores and protects points.  Points are integers and allow mathematical and statistical operations. 
+The Node object stores and protects points.  Points are integers and allow mathematical and statistical operations. 
 
-	addr.add_points [10,9,8,7,6,5]
-	addr.points.last
+	node.add_points [10,9,8,7,6,5]
+	node.points.last
 	=> #<Chawk::Models::Point ... @value=5>
-	addr.points.last(2)
+	node.points.last(2)
 	=> [#<Chawk::Models::Point ... @value=6>, #<Chawk::Models::Point ... @value=5>]
 
 Points can also use the increment and decrement operators
 
-	addr.points.last
+	node.points.last
 	=> #<Chawk::Models::Point ... @value=5>
-	addr.points + 10
-	addr.pointslast
+	node.points + 10
+	node.pointslast
 	=> #<Chawk::Models::Point ... @value=15>
 
-Addr can also return ranges from the past using the range method or the last method:
+Node can also return ranges from the past using the range method or the last method:
 
 	ts = Time.now
-	addr._insert_point(0,ts-1000)
-	addr._insert_point(1,ts-1000)
-	addr._insert_point(2,ts-1000)
-	addr._insert_point(5,ts-800)
-	addr._insert_point(8,ts-200)
-	addr._insert_point(9,ts-10)
-	addr.points_range(ts-1001,ts).length
+	node._insert_point(0,ts-1000)
+	node._insert_point(1,ts-1000)
+	node._insert_point(2,ts-1000)
+	node._insert_point(5,ts-800)
+	node._insert_point(8,ts-200)
+	node._insert_point(9,ts-10)
+	node.points_range(ts-1001,ts).length
 	=> 6
-	addr.points_range(ts-801,ts).length 
+	node.points_range(ts-801,ts).length 
 	=>3
-	addr.points_range(ts-201,ts).length 
+	node.points_range(ts-201,ts).length 
 	=> 2
-	addr.points_range(ts-11,ts).length 
+	node.points_range(ts-11,ts).length 
 	=> 1
-	addr.points_range(ts-1001,ts-999).length
+	node.points_range(ts-1001,ts-999).length
 	=> 3
+
+## Chawk::Models::Range
 
 A Chawk::Models::Range object, (soon to be merged with the Chawk.range command) produces time-limited, quantized data sets prepared for viewing, with resolution to the quarter second (one beat).
 
-    range = Chawk::Models::Range.create(start_ts:1085.0,stop_ts:1140.0,beats:1,parent_node:addr1)
+    range = Chawk::Models::Range.create(start_ts:1085.0,stop_ts:1140.0,beats:1,parent_node:node1)
 
-This will return all data from the Addr parent_node in the range from timestamp 1085 to 1140, resampled to the quarter beat. (220 data points, no matter how many are actually present in the sample)  This will become a stable hidden node (accessable via Addr.ranges) and will automatically rebuild itself if data within it's range changes.
+This will return all data from the Node parent_node in the range from timestamp 1085 to 1140, resampled to the quarter beat. (220 data points, no matter how many are actually present in the sample)  This will become a stable hidden node (accessable via Node.ranges) and will automatically rebuild itself if data within it's range changes.
 
-    range = Chawk::Models::Range.create(start_ts:1088.0,stop_ts:8100.0,beats:14400,parent_node:addr1)
+    range = Chawk::Models::Range.create(start_ts:1088.0,stop_ts:8100.0,beats:14400,parent_node:node1)
 
-This will return all data from the Addr parent_node in the range from timestamp 1085 to 8100, resampled to the quarter beat. (2 data points, no matter how many are actually present in the sample)
+This will return all data from the Node parent_node in the range from timestamp 1085 to 8100, resampled to the quarter beat. (2 data points, no matter how many are actually present in the sample)
+
+## Chawk::Models::NodeAggregator
+The NodeAggregator is a (currently expensive) object for aggregate calculations on a Node.  It's intended ot be use on a Range's data_node property, since doing aggregate math on an entire datase can be prohibitively expensive.
+
+In the future, the NodeAggregator will be replaced with a nonblocking concurrent object, paving the way for something like a distributed MapReduce solution.
 
 ## Contributing
 
