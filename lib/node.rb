@@ -2,6 +2,27 @@ require 'active_record'
 module Chawk
   # Models used in Chawk.  ActiveRecord classes.
   module Models
+    class NodeInvalidator
+      extend Forwardable
+      def_delegators :sweeps, :size, :map
+
+      def initialize(node)
+        @node = node
+        @sweeps = []
+        @ranges = []
+      end
+
+      def <<(time)
+        @node.ranges.where("start_ts <= ? AND stop_ts >= ?",time,time).each do |range|
+          @ranges << range.id unless @ranges.include?(range.id)
+        end
+      end
+
+      def invalidate!()
+        @ranges.each{|r|Chawk::Models::Range.find(r).populate!}
+      end
+    end
+
     # The Node, where most Chawk:Addr information is persisted..
     class Node < ActiveRecord::Base
       attr_accessor :agent
@@ -22,20 +43,6 @@ module Chawk
       def clear_points!
         check_admin_access
         points.destroy_all
-      end
-
-      def invalidate!(at_list)
-        ranges = []
-        at_list.each do |at|
-          self.ranges.where("start_ts <= ? AND stop_ts >= ?",at,at).each do |range|
-            ranges << range
-          end
-        end
-
-        ranges.uniq.each do |range|
-          range.populate!
-        end
-
       end
 
       def _prepare_insert(val, ts, options)
@@ -80,31 +87,22 @@ module Chawk
       # @param options [Hash] You can also pass in :meta and :timestamp 
       # Add an item or an array of items (one at a time) to the datastore.
       def add_values(args,options={})
-        invalid_times = []
+        ni = NodeInvalidator.new(self)
         _add(args,options) do |arg,dt,options|
-          invalid_times << value_recognizer(arg, dt, options)
+          ni << value_recognizer(arg, dt, options)
         end
+        ni.invalidate!
       end
 
       # @param args [Object, Array of Objects]
       # @param options [Hash] You can also pass in :meta and :timestamp 
       # Add an item or an array of items (one at a time) to the datastore.
       def add_points(args,options={})
-        # check_write_access
-        # invalid_times = []
-        # options[:observed_at] ? dt = options[:observed_at] : dt = Time.now
-        # if args.is_a?(Array)
-        #   args.each do |arg|
-        #     invalid_times << point_recognizer(arg, dt, options)
-        #   end
-        # else
-        #     invalid_times << point_recognizer(args, dt, options)
-        # end
-        invalid_times = []
+        ni = NodeInvalidator.new(self)
         _add(args,options) do |arg,dt,options|
-          invalid_times << point_recognizer(arg, dt, options)
+          ni << point_recognizer(arg, dt, options)
         end
-        invalidate! invalid_times.uniq
+        ni.invalidate!
       end
 
       def _insert_point(val,ts,options={})        
