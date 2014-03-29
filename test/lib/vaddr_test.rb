@@ -104,7 +104,7 @@ describe Chawk do
 		@addr.values_range(ts-1001,ts-990).length.must_equal 5
 
 		@addr._insert_value('0',ts-100)
-		@addr.values_range(ts-200,ts).length.must_equal 4 
+		@addr.values_range(ts-201,ts).length.must_equal 4 
 	end
 
 	it "does since" do
