@@ -1,7 +1,7 @@
-require 'pp'
-require 'pry'
-require 'pry-stack_explorer'
-require 'pry-debugger'
+# require 'pp'
+# require 'pry'
+# require 'pry-stack_explorer'
+# require 'pry-debugger'
 require 'simplecov'
 
 SimpleCov.start do
