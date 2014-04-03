@@ -10,6 +10,7 @@ class CreateChawkBase < ActiveRecord::Migration
 			t.float  "stop_ts"
 			t.integer  "beats"
 			t.integer  "default"
+			t.string  "strategy"
 			t.timestamp "expires"
 			t.timestamps
 		end

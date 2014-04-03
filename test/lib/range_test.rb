@@ -13,7 +13,7 @@ describe Chawk do
     Chawk::Models::Range.new(start_ts:1000.0,stop_ts:1140.0,beats:1,parent_node:node1).save.must_equal true
   end
 
-  it "calculates range" do 
+  it "calculates recent point" do 
     node1 = Chawk.node(@agent,'a:b')
     node1.clear_points!
 
@@ -58,4 +58,41 @@ describe Chawk do
     ag.stdev.round(2).must_equal(995.61)
 
   end
+
+  it "calculates clusters" do
+    node1 = Chawk.node(@agent,'vals')
+
+    node1._insert_point(1,Time.parse("Nov 29, 2014 9:33:20 ").to_f)
+    node1._insert_point(1,Time.parse("Nov 29, 2014 12:40:20").to_f)
+    node1._insert_point(1,Time.parse("Nov 29, 2014 17:44:20").to_f)
+    node1._insert_point(1,Time.parse("Nov 30, 2014 9:33:20").to_f)
+    node1._insert_point(1,Time.parse("Nov 30, 2014 12:40:20").to_f)
+    node1._insert_point(1,Time.parse("Dec 1, 2014 17:44:20").to_f)
+
+    range = Chawk::Models::Range.create(start_ts:Time.parse("Nov 29, 2014 8:00:00").to_f,stop_ts:Time.parse("Dec 2, 2014 10:00:00"),beats:345600,parent_node:node1,strategy:"cluster")
+    range.data_node.points.length.must_equal(4)
+    range.data_node.points[0].value.must_equal(0)
+    range.data_node.points[1].value.must_equal(3)
+    range.data_node.points[2].value.must_equal(2)
+    range.data_node.points[3].value.must_equal(1)
+  end
+
+  it "calculates tallies" do
+    node1 = Chawk.node(@agent,'vals')
+
+    node1._insert_point(1,Time.parse("Nov 29, 2014 9:33:20 ").to_f)
+    node1._insert_point(1,Time.parse("Nov 29, 2014 12:40:20").to_f)
+    node1._insert_point(1,Time.parse("Nov 29, 2014 17:44:20").to_f)
+    node1._insert_point(1,Time.parse("Nov 30, 2014 9:33:20").to_f)
+    node1._insert_point(1,Time.parse("Nov 30, 2014 12:40:20").to_f)
+    node1._insert_point(1,Time.parse("Dec 1, 2014 17:44:20").to_f)
+
+    range = Chawk::Models::Range.create(start_ts:Time.parse("Nov 29, 2014 8:00:00").to_f,stop_ts:Time.parse("Dec 2, 2014 10:00:00"),beats:345600,parent_node:node1,strategy:"tally")
+    range.data_node.points.length.must_equal(4)
+    range.data_node.points[0].value.must_equal(0)
+    range.data_node.points[1].value.must_equal(3)
+    range.data_node.points[2].value.must_equal(5)
+    range.data_node.points[3].value.must_equal(6)
+  end
+
 end

@@ -27,6 +27,7 @@ ENV["CHAWK_DEBUG"] ? debug_level=ENV["CHAWK_DEBUG"] : debug_level=:info
 #end
 
 require 'active_record'
+require 'yaml'
 
 if ENV["TEST_DATABASE_URLX"]
 	ActiveRecord::Base.establish_connection ENV["TEST_DATABASE_URL"]

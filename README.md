@@ -119,6 +119,14 @@ This will return all data from the Node parent_node in the range from timestamp 
 
 This will return all data from the Node parent_node in the range from timestamp 1085 to 8100, resampled to the quarter beat. (2 data points, no matter how many are actually present in the sample)
 
+Chawk::Models::Range also accepts a "strategy" field which indicates how it builds it's data points.  
+
+The default is "recent_point", which constructs timestamps and fills them with the most recent value for that timestamp.  
+
+"cluster" creates clustered group timestamps and fills them with a sum of all values within the timeframe from one timestamp to another.  
+
+"tally" creates timestamps and fills them with a sum of all values from the beginning of the range to the timestamp.  
+
 ## Chawk::Models::NodeAggregator
 The NodeAggregator is a (currently expensive) object for aggregate calculations on a Node.  It's intended ot be use on a Range's data_node property, since doing aggregate math on an entire datase can be prohibitively expensive.
 

@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(version: 0) do
     t.float    "stop_ts"
     t.integer  "beats"
     t.integer  "default"
+    t.string   "strategy"
     t.datetime "expires"
     t.datetime "created_at"
     t.datetime "updated_at"

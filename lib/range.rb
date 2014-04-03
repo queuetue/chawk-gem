@@ -44,7 +44,19 @@ module Chawk
         populate!
       end
 
-      def point_from_parent_point(now)
+      def cluster(now, benow)
+        sum = parent_node.points.where("observed_at > ? AND observed_at <= ?",benow,now).sum(:value)
+        data_node.points.create(observed_at:now, recorded_at:Time.now, value:sum)
+      end
+
+      def tally(now, benow, beval)
+        sum = parent_node.points.where("observed_at > ? AND observed_at <= ?",benow,now).sum(:value)
+        #puts "\n\n VAL #{beval} SUM #{sum}"
+        value = beval + sum
+        data_node.points.create(observed_at:now, recorded_at:Time.now, value:value)
+      end
+
+      def recent_point(now, benow)
         point = parent_node.points.where("observed_at <= :dt_to",{dt_to:now}).order(observed_at: :desc, id: :desc).first
         if point
           value = point.value
@@ -60,8 +72,20 @@ module Chawk
         self.data_node.points.destroy_all
         step = 0.25 * self.beats
         now = (self.start_ts*4).round/4.to_f
+        benow = now - step
+        beval = 0
         while now < self.stop_ts
-          point = point_from_parent_point now
+          #binding.pry
+          case strategy
+          when "cluster"
+            point = cluster now, benow
+          when "tally"
+            point = tally now, benow, beval
+          when "recent_point","",nil
+            point = recent_point now, benow
+          end
+          beval = point.value
+          benow = now
           now += step
         end
       end
