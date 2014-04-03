@@ -1,6 +1,4 @@
 require 'active_record'
-require 'node'
-require 'range'
 module Chawk
 	# Models used in Chawk.  ActiveRecord classes.
 	module Models
