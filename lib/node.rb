@@ -19,7 +19,7 @@ module Chawk
       end
 
       def invalidate!
-        @selections.each { |r|Chawk::Models::Selection.find(r).populate! }
+        @selections.each { |r|Selection.find(r).populate! }
       end
     end
 

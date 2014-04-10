@@ -7,6 +7,8 @@ require 'aggregator'
 
 # Chawk is a gem for storing and retrieving time seris data.
 module Chawk
+
+  include Chawk::Models
   def self.check_node_relations_security(rel, access)
     if rel && (rel.read || rel.admin)
       case access
@@ -43,11 +45,11 @@ module Chawk
     # TODO: also accept regex-tested string
     fail(ArgumentError, 'Key must be a string.') unless key.is_a?(String)
 
-    node = Chawk::Models::Node.where(key: key).first
+    node = Node.where(key: key).first
     if node
       node = check_node_security(agent, node, access)
     else
-      node = Chawk::Models::Node.create(key: key) if node.nil?
+      node = Node.create(key: key) if node.nil?
       node.set_permissions(agent, true, true, true)
     end
     node.access = access
@@ -64,7 +66,7 @@ module Chawk
       fail ArgumentError, "Key can only contain [A-Za-z0-9_:$!@*[]~()] (#{key})"
     end
 
-    fail ArgumentError, 'Agent must be a Chawk::Models::Agent instance' unless agent.is_a?(Chawk::Models::Agent)
+    fail ArgumentError, 'Agent must be a Agent instance' unless agent.is_a?(Agent)
 
     fail ArgumentError, 'key must be a string.' unless key.is_a?(String)
 
@@ -90,10 +92,10 @@ module Chawk
 
   # Deletes all data in the database.  Very dangerous.  Backup often!
   def self.clear_all_data!
-    Chawk::Models::Agent.destroy_all
-    Chawk::Models::Relation.destroy_all
-    Chawk::Models::Node.destroy_all
-    Chawk::Models::Point.destroy_all
-    Chawk::Models::Value.destroy_all
+    Agent.destroy_all
+    Relation.destroy_all
+    Node.destroy_all
+    Point.destroy_all
+    Value.destroy_all
   end
 end
