@@ -10,6 +10,7 @@ ts2 = [
   ['A', 100], ['B', 85], ['C', 80], ['D', 71],
   ['E', 70], ['F', 30], ['G', 29], ['H', 28]]
 
+# Temporary harness for quantization testing
 class Qharness
   include Chawk::Quantizer
   attr_accessor :datum

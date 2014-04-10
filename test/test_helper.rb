@@ -30,17 +30,17 @@ require 'active_record'
 require 'yaml'
 
 if ENV["TEST_DATABASE_URLX"]
-	ActiveRecord::Base.establish_connection ENV["TEST_DATABASE_URL"]
+  ActiveRecord::Base.establish_connection ENV["TEST_DATABASE_URL"]
 else
-	ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
-	ActiveRecord::Migration.verbose = false
-	require "chawk/migration"
+  ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
+  ActiveRecord::Migration.verbose = false
+  require "chawk/migration"
   CreateChawkBase.migrate :up
   CreateChawkBase.migrate :down # I'm surprised what I'll do to increase coverage.
   CreateChawkBase.migrate :up
-	File.open('./test/schema.rb', "w") do |file|
-		ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
-	end
+  File.open('./test/schema.rb', "w") do |file|
+    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
+  end
 end
 
 

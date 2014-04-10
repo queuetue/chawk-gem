@@ -1,2 +1,4 @@
 LineLength:
   Max: 120
+MethodLength:
+  Max: 20
