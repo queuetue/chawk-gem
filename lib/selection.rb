@@ -14,8 +14,8 @@ module Chawk
       after_create :build_dataset
       after_find :grant_node_access
 
-      belongs_to :parent_node, class_name: 'Chawk::Models::Node'
-      belongs_to :data_node, class_name: 'Chawk::Models::Node'
+      belongs_to :parent_node, class_name: 'Node'
+      belongs_to :data_node, class_name: 'Node'
 
       def reload
         super
@@ -32,7 +32,7 @@ module Chawk
         if subkey.to_s == ''
           self.subkey = parent_node.key + '/' + SecureRandom.hex.to_s
         end
-        self.data_node = Chawk::Models::Node.create(key: subkey)
+        self.data_node = Node.create(key: subkey)
         grant_node_access
       end
 
