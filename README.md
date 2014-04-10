@@ -107,28 +107,28 @@ Node can also return ranges from the past using the range method or the last met
 	node.points_range(ts-1001,ts-999).length
 	=> 3
 
-## Chawk::Models::Range
+## Chawk::Models::Selection
 
-A Chawk::Models::Range object, (soon to be merged with the Chawk.range command) produces time-limited, quantized data sets prepared for viewing, with resolution to the quarter second (one beat).
+A Chawk::Models::Selection object, (soon to be merged with the Chawk.range command) produces time-limited, quantized data sets prepared for viewing, with resolution to the quarter second (one beat).
 
-    range = Chawk::Models::Range.create(start_ts:1085.0,stop_ts:1140.0,beats:1,parent_node:node1)
+    sel = Chawk::Models::Selection.create(start_ts:1085.0,stop_ts:1140.0,beats:1,parent_node:node1)
 
-This will return all data from the Node parent_node in the range from timestamp 1085 to 1140, resampled to the quarter beat. (220 data points, no matter how many are actually present in the sample)  This will become a stable hidden node (accessable via Node.ranges) and will automatically rebuild itself if data within it's range changes.
+This will return all data from the Node parent_node in between timestamp 1085 to 1140, resampled to the quarter beat. (220 data points, no matter how many are actually present in the sample)  This will become a stable hidden node (accessable via Node.selections) and will automatically rebuild itself if data within it's range changes.
 
-    range = Chawk::Models::Range.create(start_ts:1088.0,stop_ts:8100.0,beats:14400,parent_node:node1)
+    sel = Chawk::Models::Selection.create(start_ts:1088.0,stop_ts:8100.0,beats:14400,parent_node:node1)
 
-This will return all data from the Node parent_node in the range from timestamp 1085 to 8100, resampled to the quarter beat. (2 data points, no matter how many are actually present in the sample)
+This will return all data from the Node parent_node in between timestamp 1085 to 8100, resampled to the quarter beat. (2 data points, no matter how many are actually present in the sample)
 
-Chawk::Models::Range also accepts a "strategy" field which indicates how it builds it's data points.  
+Chawk::Models::Selection also accepts a "strategy" field which indicates how it builds it's data points.  
 
 The default is "recent_point", which constructs timestamps and fills them with the most recent value for that timestamp.  
 
 "cluster" creates clustered group timestamps and fills them with a sum of all values within the timeframe from one timestamp to another.  
 
-"tally" creates timestamps and fills them with a sum of all values from the beginning of the range to the timestamp.  
+"tally" creates timestamps and fills them with a sum of all values from the beginning of the selection to the timestamp.  
 
 ## Chawk::Models::NodeAggregator
-The NodeAggregator is a (currently expensive) object for aggregate calculations on a Node.  It's intended ot be use on a Range's data_node property, since doing aggregate math on an entire datase can be prohibitively expensive.
+The NodeAggregator is a (currently expensive) object for aggregate calculations on a Node.  It's intended to be use on a Selection's data_node property, since doing aggregate math on an entire datase can be prohibitively expensive.
 
 In the future, the NodeAggregator will be replaced with a nonblocking concurrent object, paving the way for something like a distributed MapReduce solution.
 

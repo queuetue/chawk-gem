@@ -2,7 +2,7 @@
 
 class CreateChawkBase < ActiveRecord::Migration
   def up
-    create_table 'chawk_ranges', force: true do |t|
+    create_table 'chawk_selections', force: true do |t|
       t.string 'subkey'
       t.integer 'parent_node_id'
       t.integer 'data_node_id'

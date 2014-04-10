@@ -2,8 +2,8 @@ require 'active_record'
 module Chawk
   module Models
     # TODO: Rename!
-    # Range builds a subset of the data stored in a node, between dates and at a specific resolution.
-    class Range < ActiveRecord::Base
+    # Selection builds a subset of the data stored in a node, between dates and at a specific resolution.
+    class Selection < ActiveRecord::Base
       self.table_name_prefix = 'chawk_'
       validates :start_ts, :stop_ts, :beats, :parent_node, presence: true
       validates :subkey, :data_node, absence: true
