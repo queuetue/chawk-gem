@@ -26,7 +26,7 @@ describe Chawk do
 
  	it "clears points" do
    		@node.must_respond_to(:clear_points!)
- 	 end
+ 	end
 
  	it "clears history" do
 	  @node.add_points [1,2,3,4]
@@ -77,7 +77,7 @@ describe Chawk do
  		@node.increment 10
  		@node.increment
  		@node.points.last.value.must_equal(110)
- 		@node.increment -10
+ 		@node.increment(-10)
  		@node.points.last.value.must_equal(100)
 		@node.increment 
  		@node.points.last.value.must_equal(101)
@@ -93,7 +93,7 @@ describe Chawk do
  		@node.add_points 10
  		@node.decrement 100
  		@node.points.last.value.must_equal(-90)
- 		@node.decrement -10
+ 		@node.decrement(-10)
  		@node.points.last.value.must_equal(-80)
  		@node.decrement
  		@node.points.last.value.must_equal(-81)
@@ -206,32 +206,32 @@ describe Chawk do
  	# end
 
  	it :does_range do
-  		@node.must_respond_to(:points_range)
+  	@node.must_respond_to(:points_range)
 
-  		ts = Time.now
+  	ts = Time.now
 
-  		@node._insert_point(0,ts-1000)
-  		@node._insert_point(1,ts-1000)
-  		@node._insert_point(2,ts-1000)
-  		@node._insert_point(3,ts-1000)
-  		@node._insert_point(4,ts-1000)
-  		@node._insert_point(5,ts-800)
-  		@node._insert_point(6,ts-800)
-  		@node._insert_point(7,ts-800)
-  		@node._insert_point(8,ts-200)
-  		@node._insert_point(9,ts-10)
-  		@node._insert_point(10,ts-5)
- 	  	@node.points_range(ts-1001,ts).length.must_equal 11 
- 	  	@node.points_range(ts-801,ts).length.must_equal 6 
- 	  	@node.points_range(ts-201,ts).length.must_equal 3 
-	  	@node.points_range(ts-11,ts).length.must_equal 2 
-	  	@node.points_range(ts-6,ts).length.must_equal 1 
-	  	@node.points_range(ts-201,ts-11).length.must_equal 1 
-	  	@node.points_range(ts-1001,ts-999).length.must_equal 5
+  	@node._insert_point(0,ts-1000)
+  	@node._insert_point(1,ts-1000)
+  	@node._insert_point(2,ts-1000)
+  	@node._insert_point(3,ts-1000)
+  	@node._insert_point(4,ts-1000)
+  	@node._insert_point(5,ts-800)
+  	@node._insert_point(6,ts-800)
+  	@node._insert_point(7,ts-800)
+  	@node._insert_point(8,ts-200)
+  	@node._insert_point(9,ts-10)
+  	@node._insert_point(10,ts-5)
+  	@node.points_range(ts-1001,ts).length.must_equal 11 
+  	@node.points_range(ts-801,ts).length.must_equal 6 
+  	@node.points_range(ts-201,ts).length.must_equal 3 
+  	@node.points_range(ts-11,ts).length.must_equal 2 
+  	@node.points_range(ts-6,ts).length.must_equal 1 
+  	@node.points_range(ts-201,ts-11).length.must_equal 1 
+  	@node.points_range(ts-1001,ts-999).length.must_equal 5
 
-   		@node._insert_point(0,ts-101)
-	  	@node.points_range(ts-201,ts).length.must_equal 4 
-	end
+		@node._insert_point(0,ts-101)
+  	@node.points_range(ts-201,ts).length.must_equal 4 
+  end
 
 	it "does since" do
     @node.clear_points!

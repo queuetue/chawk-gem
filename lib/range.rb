@@ -63,25 +63,28 @@ module Chawk
         else
           value = default || 0
         end
-        data_node.points.create(observed_at:now, recorded_at:Time.now, value:value)
+        data_node.points.create(
+          observed_at: now,
+          recorded_at: Time.now,
+          value: value)
       end
 
       def populate!
         # TODO: Accounting hook
         # TODO: perform in callback (celluloid?)
-        self.data_node.points.destroy_all
-        step = 0.25 * self.beats
-        now = (self.start_ts*4).round/4.to_f
+        data_node.points.destroy_all
+        step = 0.25 * beats
+        now = (start_ts * 4).round / 4.to_f
         benow = now - step
         beval = 0
-        while now < self.stop_ts
-          #binding.pry
+        while now < stop_ts
+          # binding.pry
           case strategy
-          when "cluster"
+          when 'cluster'
             point = cluster now, benow
-          when "tally"
+          when 'tally'
             point = tally now, benow, beval
-          when "recent_point","",nil
+          when 'recent_point', '', nil
             point = recent_point now, benow
           end
           beval = point.value
