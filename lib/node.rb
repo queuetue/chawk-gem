@@ -9,17 +9,17 @@ module Chawk
       def initialize(node)
         @node = node
         @sweeps = []
-        @ranges = []
+        @selections = []
       end
 
       def <<(time)
-        @node.ranges.where('start_ts <= ? AND stop_ts >= ?', time, time).each do |range|
-          @ranges << range.id unless @ranges.include?(range.id)
+        @node.selections.where('start_ts <= ? AND stop_ts >= ?', time, time).each do |selection|
+          @selections << selection.id unless @selections.include?(selection.id)
         end
       end
 
       def invalidate!
-        @ranges.each { |r|Chawk::Models::Range.find(r).populate! }
+        @selections.each { |r|Chawk::Models::Selection.find(r).populate! }
       end
     end
 
@@ -32,7 +32,7 @@ module Chawk
       has_many :points
       has_many :values
       has_many :relations
-      has_many :ranges, foreign_key: :parent_node_id
+      has_many :selections, foreign_key: :parent_node_id
 
       attr_accessor :access
 

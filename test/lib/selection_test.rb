@@ -1,25 +1,26 @@
 require 'test_helper'
 
 include Chawk
+include Chawk::Models
 
 describe Chawk do
   before do
     Chawk.clear_all_data!
-    @agent =  Models::Agent.first || Models::Agent.create(name: 'Test User')
+    @agent =  Agent.first || Agent.create(name: 'Test User')
   end
 
   it 'obeys the order' do
     node1 = Chawk.node(@agent, 'a:b')
-    Models::Range.new(start_ts: 1140.0, stop_ts: 1085.0, beats: 1, parent_node: node1).save.must_equal false
-    Models::Range.new(start_ts: 1140.0, stop_ts: 1140.0, beats: 1, parent_node: node1).save.must_equal false
-    Models::Range.new(start_ts: 1000.0, stop_ts: 1140.0, beats: 1, parent_node: node1).save.must_equal true
+    Selection.new(start_ts: 1140.0, stop_ts: 1085.0, beats: 1, parent_node: node1).save.must_equal false
+    Selection.new(start_ts: 1140.0, stop_ts: 1140.0, beats: 1, parent_node: node1).save.must_equal false
+    Selection.new(start_ts: 1000.0, stop_ts: 1140.0, beats: 1, parent_node: node1).save.must_equal true
   end
 
   it 'calculates recent point' do
     node1 = Chawk.node(@agent, 'a:b')
     node1.clear_points!
 
-    range = Models::Range.create(start_ts: 1085.0, stop_ts: 1140.0, beats: 1, parent_node: node1)
+    range = Selection.create(start_ts: 1085.0, stop_ts: 1140.0, beats: 1, parent_node: node1)
     ag = Models::Aggregator.new(range.data_node)
     ag.sum.must_equal(0)
     ag.mean.round(2).must_equal(0.0)
@@ -32,7 +33,7 @@ describe Chawk do
     node1._insert_point(91, 1131.9783343810343)
     node1._insert_point(88, 1132.299788479544)
 
-    range = Models::Range.create(start_ts: 1085.0, stop_ts: 1140.0, beats: 1, parent_node: node1)
+    range = Selection.create(start_ts: 1085.0, stop_ts: 1140.0, beats: 1, parent_node: node1)
 
     range.data_node.points.length.must_equal(220)
     range.data_node.points[25].value.must_equal(92)
@@ -50,7 +51,7 @@ describe Chawk do
     ag.max.must_equal(1500)
     ag.min.must_equal(0)
 
-    range = Models::Range.create(start_ts: 1088.0, stop_ts: 8100.0, beats: 144_00, parent_node: node1)
+    range = Selection.create(start_ts: 1088.0, stop_ts: 8100.0, beats: 144_00, parent_node: node1)
     range.data_node.points.length.must_equal(2)
 
     ag = Models::Aggregator.new(range.data_node)
@@ -70,7 +71,7 @@ describe Chawk do
     node1._insert_point(1, Time.parse('Nov 30, 2014 12:40:20').to_f)
     node1._insert_point(1, Time.parse('Dec 1, 2014 17:44:20').to_f)
 
-    range = Models::Range.create(
+    range = Selection.create(
         start_ts: Time.parse('Nov 29, 2014 8:00:00').to_f, stop_ts: Time.parse('Dec 2, 2014 10:00:00'),
         beats: 345_600, parent_node: node1, strategy: 'cluster')
     range.data_node.points.length.must_equal(4)
@@ -90,7 +91,7 @@ describe Chawk do
     node1._insert_point(1, Time.parse('Nov 30, 2014 12:40:20').to_f)
     node1._insert_point(1, Time.parse('Dec 1, 2014 17:44:20').to_f)
 
-    range = Models::Range.create(
+    range = Selection.create(
         start_ts: Time.parse('Nov 29, 2014 8:00:00').to_f, stop_ts: Time.parse('Dec 2, 2014 10:00:00'),
         beats: 345_600, parent_node: node1, strategy: 'tally')
     range.data_node.points.length.must_equal(4)
